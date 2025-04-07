@@ -1,20 +1,28 @@
+from typing import Optional
+
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QLineEdit, QComboBox,
     QTextEdit, QPushButton, QDateEdit, QMessageBox, QCheckBox
 )
 from PyQt6.QtCore import QDate
 from PyQt6.QtGui import QPalette, QColor,QFont
+from PyQt6.QtCore import pyqtSignal
 
 
 from models.task_models import TaskModel
 
+
 class AddTaskWindow(QDialog):
-    def __init__(self, parent=None, task_data=None, edit_mode=False):
+
+    singnal_saved = pyqtSignal(TaskModel)
+    
+    def __init__(self, parent = None, task: Optional[TaskModel] = None,edit_mode = False):
         super().__init__(parent)
+
         self.setWindowTitle("Add new task" if not edit_mode else "Edit Task")
         self.setFixedSize(420, 440)
-
-        self.task_data = task_data
+    
+        self.task_data = task
         self.edit_mode = edit_mode
 
         self.set_dark_theme()
@@ -128,12 +136,11 @@ class AddTaskWindow(QDialog):
         layout.addWidget(self.is_subtask_checkbox)
 
     def load_data(self):
-        self.title_input.setText(self.task_data.get('title', ''))
-        self.description_input.setText(self.task_data.get('description', ''))
-        self.priority_input.setCurrentText(self.task_data.get('priority', 'متوسط'))
-        date_str = self.task_data.get('due_date', QDate.currentDate().toString("yyyy-MM-dd"))
-        self.due_date_input.setDate(QDate.fromString(date_str, "yyyy-MM-dd"))
-        self.is_subtask_checkbox.setChecked(self.task_data.get('is_subtask', False))
+        self.title_input.setText(self.task_data.title)
+        self.description_input.setText(self.task_data.description)
+        self.priority_input.setCurrentText(self.task_data.priority)
+        self.due_date_input.setDate(QDate.fromString(self.task_data.due_date, "yyyy-MM-dd"))
+        self.is_subtask_checkbox.setChecked(self.task_data.is_subtask)
 
     def show_warning(self, message: str):
         """ Show a warning message """
@@ -144,18 +151,22 @@ class AddTaskWindow(QDialog):
         if not title:
             self.show_warning("Please enter a title for the task.")
             return
-          
-        task = TaskModel(
-            title=title,
-            description=self.description_input.toPlainText(),
-            priority=self.priority_input.currentText(),
-            due_date=self.due_date_input.date().toString("yyyy-MM-dd"),
-            is_subtask=self.is_subtask_checkbox.isChecked(),
-            completed=False
-        )
-
-        if hasattr(self.parent(), 'more_add_task_to_list'):
-   
-            self.parent().more_add_task_to_list(task)
-
+        if self.edit_mode is False:     
+                task = TaskModel(
+                    title=title,
+                    description=self.description_input.toPlainText(),
+                    priority=self.priority_input.currentText(),
+                    due_date=self.due_date_input.date().toString("yyyy-MM-dd"),
+                    is_subtask=self.is_subtask_checkbox.isChecked(),
+                    completed=False
+                )
+                self.singnal_saved.emit(task)
+        else:
+            self.task_data.title = title
+            self.task_data.description = self.description_input.toPlainText()
+            self.task_data.priority = self.priority_input.currentText()
+            self.task_data.due_date = self.due_date_input.date().toString("yyyy-MM-dd")
+            self.task_data.is_subtask = self.is_subtask_checkbox.isChecked()
+            self.singnal_saved.emit(self.task_data)
+            
         self.accept()

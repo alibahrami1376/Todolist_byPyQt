@@ -9,19 +9,29 @@ from PyQt6.QtGui import QIcon, QPalette, QColor,QFont
 from views.view_addtask import AddTaskWindow
 from views.view_pagemanager import PageManagerWindow
 from models.task_models import TaskModel
+from viewmodels.task_view_models import TaskViewModel
 
 
 class TaskManagerWindow(QMainWindow):
     def __init__(self,manager : PageManagerWindow):
+
         super().__init__()
+        self.viewmodel = TaskViewModel()
         self.manager = manager
+
         self.setWindowTitle("Task Manager-Todo List")
         self.setFixedSize(450, 600)
         self.setWindowIcon(QIcon('images/checklist.png')) 
         self.setDarkTheme()
+
         self.init_ui()
         self.create_menu_right_click()
-        
+        self.load_tasks()
+
+    def load_tasks(self):
+        self.task_list.clear()
+        for task in self.viewmodel.get_all_tasks():
+            self.create_task_item_widget(task)
 
     def init_ui(self):
         """ Initialize the page components """  
@@ -162,7 +172,14 @@ class TaskManagerWindow(QMainWindow):
 
     def open_add_task_window(self):
         self.add_task_window = AddTaskWindow(self)
+        self.add_task_window.singnal_saved.connect(self.handle_new_task)
         self.add_task_window.exec()
+
+
+    def handle_new_task(self, task: TaskModel):
+        self.viewmodel.add_task(task)
+        self.load_tasks()  # تسک‌ها رفرش می‌شن
+     
 
     
     def add_task_to_list(self):
@@ -181,7 +198,8 @@ class TaskManagerWindow(QMainWindow):
             due_date=date,
             completed=False)
         
-        self.create_task_item_widget(task)
+        self.viewmodel.add_task(task)
+        self.load_tasks()
         
 
     def more_add_task_to_list(self, task_details:TaskModel) -> None:
@@ -196,6 +214,7 @@ class TaskManagerWindow(QMainWindow):
         checkbox.setStyleSheet("padding:5px;")
         checkbox.setChecked(task.completed)
         checkbox.stateChanged.connect(lambda: self.toggle_task_complete(checkbox))
+        item.setData(Qt.ItemDataRole.UserRole, task.id)
         item.setSizeHint(checkbox.sizeHint() + QSize(10, 20))
         self.task_list.addItem(item)
         self.task_list.setItemWidget(item, checkbox)
@@ -214,16 +233,28 @@ class TaskManagerWindow(QMainWindow):
 
 
     def edit_selected_task(self):
+       
         """ Edit the selected task """
-        selected_item = self.task_list.currentItem()
-        if selected_item:
-            task_data = selected_item.text()
-            self.edit_window = AddTaskWindow(self, task_data, edit_mode=True)
+        selected = self.task_list.currentItem()
+        task_id = selected.data(Qt.ItemDataRole.UserRole)
+        task = self.viewmodel.find_by_id(task_id)
+        if selected:
+            self.edit_window = AddTaskWindow(None,task, edit_mode=True)
             self.edit_window.show()
+            self.edit_window.singnal_saved.connect(self.handle_save_task)
+            self.edit_window.exec()
+
         else:
             self.show_warning("Please select a task to edit.")
 
-
+    def handle_save_task(self, task: TaskModel):
+        """ Handle the save task signal from the edit window """
+        if task:
+            
+            self.viewmodel.update_task(task)
+            self.load_tasks()
+        else:
+            self.show_warning("Please select a task to edit.")
     def update_task_in_list(self, new_task_data):
         """ Update the task in the list with the new data """
         selected_item = self.task_list.currentItem()
@@ -237,16 +268,32 @@ class TaskManagerWindow(QMainWindow):
 
     def remove_selected_task(self):
         """ Remove the selected task from the list """
-        selected = self.task_list.currentRow()
-        if selected >= 0:
-            self.task_list.takeItem(selected)
-        else:
+        selected = self.task_list.currentItem()
+        if selected is None:
             self.show_warning("Please select a task to delete.")
-
+            return
+        else :
+            task_id = selected.data(Qt.ItemDataRole.UserRole)
+            self.viewmodel.delete_task(task_id)
+            self.load_tasks()  
+        
 
     def show_warning(self, message: str):
         """ Show a warning message """
         QMessageBox.warning(self, "Warning", message, QMessageBox.StandardButton.Ok)
+    def show_question(self, title: str , message: str)-> bool:
+    
+        """ Show a question message """
+        reply = QMessageBox.question(self,
+                            title,
+                            message,
+                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                            )
+        if reply == QMessageBox.StandardButton.Yes:
+            return True
+        else:
+            return False    
+
 
     def create_menu_right_click(self):
         """ Create a right-click menu for the task list """
@@ -266,4 +313,10 @@ class TaskManagerWindow(QMainWindow):
 
     def clear_all_tasks(self):
         """ Clear all tasks from the list """
-        self.task_list.clear()
+        if self.show_question("Confirmation", "Are you sure you want to delete all tasks?"):
+            self.viewmodel.clear_all()
+            self.load_tasks()
+        return
+        
+
+
