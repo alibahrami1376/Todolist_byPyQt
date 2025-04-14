@@ -10,6 +10,8 @@ from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
 
 
 from views.view_pagemanager import PageManagerWindow
+from utils.stylesheet_loader import load_stylesheet
+
 
 USERNAME = "user"
 PASSWORD = "pass"
@@ -19,21 +21,8 @@ class LoginPage(QWidget):
     def __init__(self,manager: PageManagerWindow):
         super().__init__()
         self.manager = manager
-        self.setWindowTitle("Login - Todo List")
-        self.setFixedSize(450, 600)
-        self.setWindowIcon(QIcon('images/checklist.png')) 
-        self.setDarkTheme()
         self.init_ui()
-        self.showAnimation()
-
-
-    def setDarkTheme(self):
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
-        palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
-        palette.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
-        palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
-        self.setPalette(palette)
+        self.show_animation()
 
 
     def init_ui(self):
@@ -57,6 +46,7 @@ class LoginPage(QWidget):
         layout.addStretch()
         self.setLayout(layout)
 
+
     def create_input_fields(self):
 
         font = QFont('Segoe UI', 10)
@@ -65,14 +55,8 @@ class LoginPage(QWidget):
         self.username.setPlaceholderText("Username")
         self.username.setFont(font)
         self.username.setFixedHeight(40)
-        self.username.setStyleSheet(
-        """
-        background-color: #333333;
-        color: white;
-        border-radius: 5px;
-        padding-left: 10px;
-        """
-        )       
+        self.username.setObjectName("username")
+        self.username.setStyleSheet(load_stylesheet("styles/login/username.qss"))       
 
         self.username.returnPressed.connect(self.handle_login)
 
@@ -81,7 +65,8 @@ class LoginPage(QWidget):
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.password.setFont(font)
         self.password.setFixedHeight(40)
-        self.password.setStyleSheet("background-color: #333333; color: white; border-radius: 5px; padding-left: 10px;")
+        self.password.setObjectName("password")
+        self.password.setStyleSheet(load_stylesheet("styles/login/password.qss"))
         self.password.returnPressed.connect(self.handle_login)
         
 
@@ -90,13 +75,16 @@ class LoginPage(QWidget):
         btn_login = QPushButton("login")
         btn_login.setFont(font_button)
         btn_login.setFixedHeight(40)
-        btn_login.setStyleSheet("background-color:#03DAC6; color:black; border-radius:5px;")
+        btn_login.setStyleSheet(load_stylesheet("styles/login/button_login.qss"))
+        # title_lable_btn_login = QLabel("login")
+        # title_lable_btn_login.setObjectName("login")
+
         btn_login.clicked.connect(self.handle_login)
 
         btn_exit = QPushButton("exit")
         btn_exit.setFont(font_button)
         btn_exit.setFixedHeight(40)
-        btn_exit.setStyleSheet("background-color:#CF6679; color:black; border-radius:5px;")
+        btn_exit.setStyleSheet(load_stylesheet("styles/login/button_exit.qss"))
         btn_exit.clicked.connect(sys.exit)
 
         self.button_layout = QHBoxLayout()
@@ -108,24 +96,29 @@ class LoginPage(QWidget):
         # اعتبارسنجی ساده: در اینجا نام کاربری "user" و رمز "pass" در نظر گرفته شده است.
         username = self.username.text().strip()
         password = self.password.text().strip()
-
-        if not username or not password:
-            self.show_warning("Please fill in both fields.")
+        error = self.validate_login(username, password)
+        if error:
+            self.show_warning(error)
             return
+        self.manager.switch_page("home")
 
-        if username == USERNAME and password == PASSWORD:
-            self.manager.switch_page("home")
-        else :
-            self.show_warning("Incorrect username or password. Please try again.")
 
     def show_warning(self, message: str):
         QMessageBox.warning(self, "Warning", message, QMessageBox.StandardButton.Ok)
 
 
-    def showAnimation(self):
+    def show_animation(self):
         self.anim = QPropertyAnimation(self, b"windowOpacity")
         self.anim.setDuration(1500)
         self.anim.setStartValue(0)
         self.anim.setEndValue(1)
         self.anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
         self.anim.start()
+
+
+    def validate_login(self, username, password):
+        if not username or not password:
+            return "Please fill in both fields."
+        if username != USERNAME or password != PASSWORD:
+            return "Incorrect username or password. Please try again."
+        return None

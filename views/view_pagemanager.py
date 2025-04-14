@@ -15,21 +15,11 @@ class PageManagerWindow(QMainWindow):
         self.setWindowTitle("Todo App")
         self.setWindowIcon(QIcon('images/checklist.png'))
         self.setFixedSize(450, 600)
-        self.set_darkTheme()
+ 
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
         
-
-    def set_darkTheme(self):
-
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
-        palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
-        palette.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
-        palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
-        self.setPalette(palette)
-
 
     def add_page(self, page_widget, page_name):
         self.pages[page_name] = page_widget

@@ -7,7 +7,7 @@ class TaskModel:
         self,
         title: str,
         description: str = "",
-        priority: str = "متوسط",
+        priority: str = "midel",
         due_date: Optional[str] = None,
         completed: bool = False,
         is_subtask: bool = False,

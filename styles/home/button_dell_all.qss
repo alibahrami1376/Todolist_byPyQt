@@ -1,0 +1,13 @@
+
+/*style shett by butoon_Delete_All_tasks*/
+
+
+QPushButton {
+    background-color: #F0AD4E;
+    color: black;
+    border-radius: 5px;
+    padding: 10px;
+    }
+    QPushButton:hover {
+    background-color: #EC971F;
+    }
