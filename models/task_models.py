@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional
+from datetime import date,datetime
 
 class TaskModel:
     def __init__(
@@ -8,7 +9,7 @@ class TaskModel:
         title: str,
         description: str = "",
         priority: str = "midel",
-        due_date: Optional[str] = None,
+        due_date: Optional[date]= None,
         completed: bool = False,
         is_subtask: bool = False,
         parent_id: Optional[str] = None,
@@ -20,7 +21,7 @@ class TaskModel:
         self.title: str = title
         self.description: str = description
         self.priority: str = priority
-        self.due_date: str = due_date or datetime.now().strftime("%Y-%m-%d")
+        self.due_date: date = due_date or datetime.now().date()
         self.completed: bool = completed
         self.is_subtask: bool = is_subtask
         self.parent_id: Optional[str] = parent_id

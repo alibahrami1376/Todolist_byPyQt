@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QMainWindow,QWidget, QVBoxLayout, QPushButton, QListWidget,
-    QMessageBox, QListWidgetItem, QHBoxLayout, QCheckBox,QLineEdit,QMenu,QLabel
+    QMessageBox, QListWidgetItem, QHBoxLayout, QCheckBox,QLineEdit,QMenu
 )
 from PyQt6.QtCore import Qt,QSize,QDate
 from PyQt6.QtGui import QIcon,QFont
@@ -14,21 +14,25 @@ from utils.stylesheet_loader import load_stylesheet
 
 
 class TaskManagerWindow(QMainWindow):
-    def __init__(self,manager : PageManagerWindow,viewmodel: TaskViewModel):
+    def __init__(self,manager : PageManagerWindow):
         """ Initialize the home-task manager window """
-
         super().__init__()
-        self.viewmodel = viewmodel
+        self.viewmodel :TaskViewModel
         self.manager = manager
 
         self.init_ui()
-        self.load_tasks()
 
+        
+    def set_user(self, user_id: str):
+        self.viewmodel = TaskViewModel(user_id)
+        self.load_tasks()
 
     def load_tasks(self):
         self.task_list.clear()
-        for task in self.viewmodel.get_all_tasks():
-            self.create_task_item_widget(task)
+        tasks = self.viewmodel.get_all_tasks()
+        if tasks:
+            for task in tasks:
+                self.create_task_item_widget(task)
 
 
     def init_ui(self):
@@ -132,7 +136,7 @@ class TaskManagerWindow(QMainWindow):
             title=title,
             description="",
             priority = "middle",
-            due_date=QDate().currentDate().toString("yyyy-MM-dd"),
+            due_date=QDate().currentDate().toPyDate(),
             completed=False)
         return task
     
@@ -167,7 +171,7 @@ class TaskManagerWindow(QMainWindow):
         checkbox = self.check_task_checkbox_strikeout(checkbox)
         task: TaskModel = item.data(Qt.ItemDataRole.UserRole)
         task.completed = checkbox.isChecked()
-        self.viewmodel.mark_complete(task.id, task.completed)
+        self.viewmodel.mark_toggel(task, task.completed)
 
     
     def edit_selected_task(self):
@@ -257,7 +261,7 @@ class TaskManagerWindow(QMainWindow):
         """ Clear all tasks from the list """
         if self.show_question("Confirmation", "Are you sure you want to delete all tasks?"):
             self.viewmodel.clear_all()
-            self.load_tasks()
+            self.task_list.clear()
         return
         
     def build_checkbox_for_task(self, task: TaskModel, item: QListWidgetItem) -> QCheckBox:

@@ -11,16 +11,17 @@ from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
 
 from views.view_pagemanager import PageManagerWindow
 from utils.stylesheet_loader import load_stylesheet
+from viewmodels.user_view_model import UserViewModel
 
 
-USERNAME = "user"
-PASSWORD = "pass"
+
 
 
 class LoginPage(QWidget):
     def __init__(self,manager: PageManagerWindow):
         super().__init__()
         self.manager = manager
+        self.userviewmodel = UserViewModel()
         self.init_ui()
         self.show_animation()
 
@@ -93,13 +94,14 @@ class LoginPage(QWidget):
 
         
     def handle_login(self):
-        # اعتبارسنجی ساده: در اینجا نام کاربری "user" و رمز "pass" در نظر گرفته شده است.
         username = self.username.text().strip()
         password = self.password.text().strip()
         error = self.validate_login(username, password)
         if error:
             self.show_warning(error)
             return
+        home_page = self.manager.get_page("home")
+        home_page.set_user(self.manager.get_current_user())
         self.manager.switch_page("home")
 
 
@@ -119,6 +121,8 @@ class LoginPage(QWidget):
     def validate_login(self, username, password):
         if not username or not password:
             return "Please fill in both fields."
-        if username != USERNAME or password != PASSWORD:
+        us = self.userviewmodel.validate_credentials(user=username,passw=password) 
+        if us is None:
             return "Incorrect username or password. Please try again."
+        self.manager.set_current_user(us.id) 
         return None

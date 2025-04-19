@@ -94,11 +94,9 @@ class AddTaskWindow(QDialog):
         self.title_input.setText(self.task_data.title)
         self.description_input.setText(self.task_data.description)
         self.priority_input.setCurrentText(self.task_data.priority)
-        date = QDate.fromString(self.task_data.due_date, "yyyy-MM-dd")
-        if date.isValid():
-            self.due_date_input.setDate(date)
+        date =  self.due_date_input.date().toPyDate()  
+        self.due_date_input.setDate(QDate(date.year, date.month, date.day))
         self.is_subtask_checkbox.setChecked(self.task_data.is_subtask)
-
 
     def show_warning(self, message: str):
         QMessageBox.warning(self, "Warning", message, QMessageBox.StandardButton.Ok)
@@ -124,7 +122,7 @@ class AddTaskWindow(QDialog):
             title=title,
             description=self.description_input.toPlainText(),
             priority=self.priority_input.currentText(),
-            due_date=self.due_date_input.date().toString("yyyy-MM-dd"),
+            due_date=self.due_date_input.date().toPyDate(),
             is_subtask=self.is_subtask_checkbox.isChecked(),
             completed=False
         )
@@ -136,7 +134,7 @@ class AddTaskWindow(QDialog):
         self.task_data.title = title
         self.task_data.description = self.description_input.toPlainText()
         self.task_data.priority = self.priority_input.currentText()
-        self.task_data.due_date = self.due_date_input.date().toString("yyyy-MM-dd")
+        self.task_data.due_date = self.due_date_input.date().toPyDate()
         self.task_data.is_subtask = self.is_subtask_checkbox.isChecked()
         self.signal_saved.emit(self.task_data)
     

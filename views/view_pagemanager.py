@@ -11,7 +11,7 @@ class PageManagerWindow(QMainWindow):
          
         super().__init__()
         self.pages = {}
-
+        self.curent_userid = None
         self.setWindowTitle("Todo App")
         self.setWindowIcon(QIcon('images/checklist.png'))
         self.setFixedSize(450, 600)
@@ -25,6 +25,10 @@ class PageManagerWindow(QMainWindow):
         self.pages[page_name] = page_widget
         self.stack.addWidget(page_widget)
     
+    def set_current_user(self, userid):
+        self.curent_userid = userid
+    def get_current_user(self):
+        return self.curent_userid
     
     def switch_page(self, page_name):
         if page_name in self.pages:
@@ -32,3 +36,10 @@ class PageManagerWindow(QMainWindow):
             self.stack.setCurrentWidget(widget)
         else:
             raise ValueError(f"Page '{page_name}' not found.")
+    def get_page(self, page_name) :
+        if page_name in self.pages:
+            return self.pages[page_name]
+        else:
+            raise ValueError(f"Page '{page_name}' not found.")
+    # def get_page(self, page_name: str):
+    #     return self.pages.get(page_name)

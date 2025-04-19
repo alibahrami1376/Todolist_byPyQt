@@ -7,13 +7,23 @@ from viewmodels.task_view_models import TaskViewModel
 
 from utils.stylesheet_loader import load_stylesheet
 
+from models.db.user_entity import UserEntity
+from models.db.task_entity import TaskEntity
+
+from services.db_session import engine,Base
+from config import Config
+
+Base.metadata.create_all(bind=engine)
+co = Config()
+
+
 app = QApplication(sys.argv)
 app.setStyleSheet(load_stylesheet("styles/dark.qss"))
 
 manager = PageManagerWindow()
 
 # ساخت نمونه صفحات
-home_page = TaskManagerWindow(manager, TaskViewModel())
+home_page = TaskManagerWindow(manager)
 Login_page = LoginPage(manager)
 
 # اضافه کردن صفحات به manager
