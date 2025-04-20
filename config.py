@@ -26,3 +26,5 @@ class Config:
         self.user_view_model.create_user("ali", "1234")
         self.user_view_model.create_user("bahram", "1234")
     
+
+

@@ -14,7 +14,7 @@ from utils.stylesheet_loader import load_stylesheet
 from viewmodels.user_view_model import UserViewModel
 
 
-
+from views.widgets.custom_titlebar import CustomTitleBar
 
 
 class LoginPage(QWidget):
@@ -22,6 +22,12 @@ class LoginPage(QWidget):
         super().__init__()
         self.manager = manager
         self.userviewmodel = UserViewModel()
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+      
+
+       
         self.init_ui()
         self.show_animation()
 
@@ -37,6 +43,8 @@ class LoginPage(QWidget):
         self.create_input_fields()
 
         layout = QVBoxLayout()
+        titlebar = CustomTitleBar(self)
+        layout.addWidget(titlebar)
         layout.addStretch()
         layout.addWidget(title)
         layout.addSpacing(100)
