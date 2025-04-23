@@ -2,23 +2,34 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButt
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 
+from core.session_manager import Session
+from viewmodels.task_view_models import TaskViewModel
+
 class DashboardPage(QWidget):
     def __init__(self):
         super().__init__()
+        Session.session_changed.connect(self.reload_user)
+        # self.task_viewmodel = TaskViewModel()
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        layout.addWidget(QLabel("<h2>📋 Dashboard</h2>"))
-        layout.addWidget(QLabel("<b>Welcome to your task dashboard!</b>"))
+        self.header_label = QLabel("<h2>📋 Dashboard</h2>")
+        layout.addWidget(self.header_label)
+
+        self.welcome_label = QLabel("<b>Welcome to your task dashboard!</b>")
+        layout.addWidget(self.welcome_label)
 
         # Quick stats section
-        stats_layout = QHBoxLayout()
-        for label, icon in [("Total Tasks", "📌"), ("Completed", "✅"), ("Pending", "⏳")]:
-            stat = QLabel(f"<b>{icon} {label}</b><br>0")
-            stat.setStyleSheet("background-color: #2d2d30; padding: 10px; border-radius: 10px;")
-            stats_layout.addWidget(stat)
-        layout.addLayout(stats_layout)
+        self.stats_layout = QHBoxLayout()
+        self.label_total = QLabel()
+        self.label_completed = QLabel()
+        self.label_pending = QLabel()
+        for label in [self.label_total, self.label_completed, self.label_pending]:
+            label.setStyleSheet("background-color: #2d2d30; padding: 10px; border-radius: 10px;")
+            self.stats_layout.addWidget(label)
+        layout.addLayout(self.stats_layout)
 
         # Task preview list
         layout.addWidget(QLabel("<b>🧾 Recent Tasks:</b>"))
@@ -40,15 +51,9 @@ class DashboardPage(QWidget):
         layout.addWidget(self.task_list)
         layout.addWidget(self.card("Some text"))
 
-        # Load some placeholder tasks
-        self.load_demo_tasks()
         layout.addStretch()
+        self.reload_user()
 
-    def load_demo_tasks(self):
-        tasks = ["Finish UI layout", "Connect database", "Test login flow", "Review project plan"]
-        for task in tasks:
-            item = QListWidgetItem(f"📌 {task}")
-            self.task_list.addItem(item)
     def card(self, text):
         label = QLabel(text)
         label.setWordWrap(True)
@@ -59,3 +64,26 @@ class DashboardPage(QWidget):
             color: white;
         """)
         return label
+
+    def reload_user(self):
+        user = Session.current_user()
+        if user:
+            self.welcome_label.setText(f"<b>Welcome back, {user.username}!</b>")
+            # tasks = self.task_viewmodel.get_tasks_by_user(user.id)
+            # self.task_list.clear()
+            # for task in tasks[:5]:
+            #     self.task_list.addItem(QListWidgetItem(f"📌 {task.title}"))
+
+            # total = len(tasks)
+            # completed = len([t for t in tasks if t.completed])
+            # pending = total - completed
+
+            # self.label_total.setText(f"<b>📌 Total Tasks</b><br>{total}")
+            # self.label_completed.setText(f"<b>✅ Completed</b><br>{completed}")
+            # self.label_pending.setText(f"<b>⏳ Pending</b><br>{pending}")
+        else:
+            self.welcome_label.setText("<b>Welcome!</b>")
+            self.task_list.clear()
+            self.label_total.setText(f"<b>📌 Total Tasks</b><br>0")
+            self.label_completed.setText(f"<b>✅ Completed</b><br>0")
+            self.label_pending.setText(f"<b>⏳ Pending</b><br>0")

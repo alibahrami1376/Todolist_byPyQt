@@ -8,7 +8,7 @@ class Sidebar(QFrame):
     def __init__(self):
         super().__init__()
         self.expanded = True
-        self.setFixedWidth(100)  # مقدار پیش‌فرض، در toggle تغییر می‌کنه
+        self.setFixedWidth(100)  
         self.setStyleSheet("background-color: #2d2d30;")
 
         self.layout_main = QVBoxLayout(self)
@@ -58,9 +58,9 @@ class Sidebar(QFrame):
             QToolButton {
                 text-align: left;
                 padding-left: 10px;
-                color: #00ffff;
+                color: #BB86FC;
                 background-color: #3e3e42;
-                border-left: 4px solid #00ffff;
+                border-left: 4px solid #BB86FC;
                 border-radius: 8px;
             }
             QToolButton:hover {
