@@ -5,11 +5,14 @@ from PyQt6.QtCore import Qt
 
 from views.widgets.custom_titlebar import CustomTitleBar
 from views.widgets.sidebar import Sidebar
-
+from utils.app_notifier import AppNotifier
 
 class MainFramelessWindow(QWidget):
     def __init__(self):
         super().__init__()
+        
+        self.notifier = AppNotifier(self)
+        self.notifier.set_parent(self)
 
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -52,6 +55,13 @@ class MainFramelessWindow(QWidget):
     def add_page(self, widget: QWidget, name: str):
         self.pages[name.lower()] = widget
         self.stack.addWidget(widget)
+
+
+    def change_page(self,widget_new: QWidget,name: str): 
+        self.pages[name.lower()]= widget_new
+        self.stack.addWidget(widget_new)
+        self.stack.setCurrentWidget(widget_new)
+
 
     def switch_page(self, name: str):
         if name.lower() in self.pages:
