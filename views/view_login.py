@@ -11,7 +11,7 @@ from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
 
 from views.view_pagemanager import PageManagerWindow
 from utils.stylesheet_loader import load_stylesheet
-from viewmodels.user_view_model import UserViewModel
+from viewmodels.auth_viewmodel import UserViewModel
 
 
 from views.widgets.custom_titlebar import CustomTitleBar
