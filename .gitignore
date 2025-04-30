@@ -7,7 +7,10 @@ __pycache__/
 data/task.json
 # C extensions
 *.so
-
+# ignore accidentally-copied stdlib directories
+asyncio/
+bcrypt/
+collections/
 # Distribution / packaging
 .Python
 build/
