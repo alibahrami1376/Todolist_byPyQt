@@ -20,6 +20,7 @@ class RegisterPage(QDialog):
         self.setStyleSheet(self.load_styles())
         self.init_ui()
         
+        
 
     def init_ui(self):
         outer_layout = QVBoxLayout(self)

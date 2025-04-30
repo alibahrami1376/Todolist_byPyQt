@@ -3,12 +3,13 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 
 from core.session_manager import Session
-from viewmodels.task_view_models import TaskViewModel
+from core.session_task import Task_Session
+from viewmodels.task_viewmodels import TaskViewModel
 
 class DashboardPage(QWidget):
     def __init__(self):
         super().__init__()
-        Session.session_changed.connect(self.reload_user)
+        Session.session_user_set.connect(self.reload_user)
         # self.task_viewmodel = TaskViewModel()
 
         layout = QVBoxLayout(self)
@@ -69,18 +70,18 @@ class DashboardPage(QWidget):
         user = Session.current_user()
         if user:
             self.welcome_label.setText(f"<b>Welcome back, {user.username}!</b>")
-            # tasks = self.task_viewmodel.get_tasks_by_user(user.id)
-            # self.task_list.clear()
-            # for task in tasks[:5]:
-            #     self.task_list.addItem(QListWidgetItem(f"📌 {task.title}"))
+            tasks = Task_Session.get_all()
+            self.task_list.clear()
+            for task in tasks[:5]:
+                self.task_list.addItem(QListWidgetItem(f"📌 {task.title}"))
 
-            # total = len(tasks)
-            # completed = len([t for t in tasks if t.completed])
-            # pending = total - completed
+            total = len(tasks)
+            completed = len([t for t in tasks if t.completed])
+            pending = total - completed
 
-            # self.label_total.setText(f"<b>📌 Total Tasks</b><br>{total}")
-            # self.label_completed.setText(f"<b>✅ Completed</b><br>{completed}")
-            # self.label_pending.setText(f"<b>⏳ Pending</b><br>{pending}")
+            self.label_total.setText(f"<b>📌 Total Tasks</b><br>{total}")
+            self.label_completed.setText(f"<b>✅ Completed</b><br>{completed}")
+            self.label_pending.setText(f"<b>⏳ Pending</b><br>{pending}")
         else:
             self.welcome_label.setText("<b>Welcome!</b>")
             self.task_list.clear()

@@ -11,10 +11,11 @@ class UserModel:
         email_address: Optional[str]=None,
         phone_number: Optional[str]=None,
         is_activate: Optional[bool]=None, 
+        id: Optional[str]=None
         ):
         self.username= username 
         self.password= password
-        self.id= uuid4().hex
+        self.id= uuid4().hex if id is None  else id
         self.email_address= email_address
         self.phone_number= phone_number
         self.is_activate= is_activate
@@ -42,5 +43,5 @@ class UserModel:
         phone_number= data.get("phone",""),
         is_activate= data.get("is_activate",False), 
         )
-
+    
 

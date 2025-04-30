@@ -2,7 +2,7 @@
 
 from models.db.task_entity import TaskEntity
 from models.task_models import TaskModel
-from datetime import datetime
+from datetime import date
 def map_entity_to_model(entity: TaskEntity) -> TaskModel:
     return TaskModel(
         task_id=entity.id,
@@ -21,7 +21,21 @@ def map_model_to_entity(model: TaskModel) -> TaskEntity:
         title=model.title,
         description=model.description,
         priority=model.priority,
-        due_date=model.due_date,
+        due_date=model.due_date if isinstance(model.due_date, date) else date.fromisoformat(model.due_date),
         is_subtask=model.is_subtask,
         completed=model.completed
     )
+
+
+def map_model_to_entity_by_userid(model: TaskModel,userid: str) -> TaskEntity:
+    return TaskEntity(
+        id= model.id,
+        title= model.title,
+        description= model.description,
+        priority= model.priority,
+        due_date= model.due_date if isinstance(model.due_date, date) else date.fromisoformat(model.due_date),
+        is_subtask= model.is_subtask,
+        completed= model.completed,
+        user_id= userid
+    )
+

@@ -6,4 +6,9 @@
     border: 1px solid #E6E6E6;
     border-radius: 5px;
     padding: 10px;
-    }
+   }
+   QLabel {
+    font-size: 15px;
+    color: #cccccc;  /* رنگ خاکستری روشن */
+    font-weight: bold;
+   }

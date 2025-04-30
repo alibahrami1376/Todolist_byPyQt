@@ -13,12 +13,14 @@ def map_entity_to_model(entity: UserEntity) -> UserModel:
      password=entity.password,
      email_address=entity.email_address,
      phone_number=entity.phone_number,
-     is_activate=entity.is_active
+     is_activate=entity.is_active,
+     id=entity.id
     )
 
 
 def map_model_to_entity(model: UserModel) -> UserEntity:
     return UserEntity(
+        id=model.id,
         username=model.username,
         password=model.password,
         email_address=model.email_address,

@@ -1,7 +1,7 @@
 from configg.page_registery import PageRegistry
 from controllers.auth_controller import AuthController
 from views.main_frameless_window import MainFramelessWindow
-
+from controllers.task_controller import TaskController
 class ConfigPages:
     def __init__(self):
         self.pages = PageRegistry()
@@ -13,6 +13,12 @@ class ConfigPages:
             register_page=self.pages.register,
             page_manager=self.window
         )
+        self.task_controler = TaskController(
+            page_todolist=self.pages.todo,
+            page_showtask=self.pages.show_task,
+            page_editore=self.pages.edit_task,
+            page_manager=self.window
+        ) 
     def add_page(self):             
         self.window.add_page(self.pages.dash,"Dashboard")
         self.window.add_page(self.pages.calendar,"Calendar")

@@ -6,10 +6,11 @@ from PyQt6.QtCore import QObject
 from views.pages.login_page import LoginPage
 from views.main_frameless_window import MainFramelessWindow
 from viewmodels.auth_viewmodel import UserViewModel
+from services.user_service import UserService
 from utils.app_notifier import AppNotifier
 
 from core.session_manager import Session
-
+from services.db_session import get_session
 from views.pages.register_page import RegisterPage
 from views.pages.userdashboard_page import UserDashboardPage
 
@@ -26,7 +27,7 @@ class AuthController(QObject):
         self.userdash_page= userdash_page
         self.register_page= register_page
         self.page_manager = page_manager
-        self.user_viewmodel = UserViewModel()
+        self.user_viewmodel = UserViewModel(UserService(get_session))
        
 
         self.connect_signals()
@@ -59,6 +60,7 @@ class AuthController(QObject):
 
     def continue_as_guest(self):
         user = self.user_viewmodel.creat_guest()
+        Session.set_guest()
         Session.set_user(user)
         AppNotifier(QWidget).warning("Success","You have successfully logged in.")
         self.userdash_page.logout_requested.connect(self.handle_logout)

@@ -1,13 +1,15 @@
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget,QHBoxLayout
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt,pyqtSignal
 
 
 from views.widgets.custom_titlebar import CustomTitleBar
 from views.widgets.sidebar import Sidebar
 from utils.app_notifier import AppNotifier
+from core.session_manager import Session
 
 class MainFramelessWindow(QWidget):
+    handle_exit= pyqtSignal()
     def __init__(self):
         super().__init__()
         
@@ -68,4 +70,16 @@ class MainFramelessWindow(QWidget):
             self.stack.setCurrentWidget(self.pages[name.lower()])
         else:
             raise ValueError(f"Page '{name}' not found.")
-    
+    def closeEvent(self, event):
+        if AppNotifier(QWidget).confirm(
+            "Exit Confirmation",
+            "Are you sure you want to exit? "):
+            if Session.is_guest():
+               if AppNotifier(QWidget).confirm(
+                "save Changes",
+                "What if the changes you made to the task are saved?"):
+                    self.handle_exit.emit()
+            event.accept()
+        else:
+            event.ignore()
+        

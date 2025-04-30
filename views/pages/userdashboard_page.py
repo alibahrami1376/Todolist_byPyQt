@@ -4,13 +4,14 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayo
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QFont
 from core.session_manager import Session
+from utils.app_notifier import AppNotifier
 
 class UserDashboardPage(QWidget):
     logout_requested = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        Session.session_changed.connect(self.reload_user)
+        Session.session_user_set.connect(self.reload_user)
         self.setStyleSheet("""
             QWidget {
                 background-color: #1e1e1e;
@@ -62,7 +63,7 @@ class UserDashboardPage(QWidget):
         self.layout.addWidget(self.chart_section)
 
         logout_btn = QPushButton("Logout")
-        logout_btn.clicked.connect(self.logout_requested.emit)
+        logout_btn.clicked.connect(self.handle_logout)
         self.layout.addWidget(logout_btn, alignment=Qt.AlignmentFlag.AlignRight)
         self.layout.addStretch()
 
@@ -74,3 +75,7 @@ class UserDashboardPage(QWidget):
             self.label_email.setText(f"Email: {user.email_address}")
             self.label_phone.setText(f"Phone: {user.phone_number}")
 
+    def handle_logout(self):
+        if AppNotifier(QWidget).confirm("Logout",
+            "Are you sure you want to log out of your account?"):
+            self.logout_requested.emit()

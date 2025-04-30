@@ -1,11 +1,13 @@
 
-
 QPushButton {
-    background-color: #D9534F;
-    color: black;
-    border-radius: 5px;
-    padding: 10px;
-    }
+    background-color: #8A2BE2;  /* بنفش زیبا */
+    color: white;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
 QPushButton:hover {
-    background-color: #C9302C;
-    }
+    background-color: #7B1FA2;
+}

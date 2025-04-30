@@ -3,7 +3,7 @@ import os
 from typing import List
 from models.task_models import TaskModel
 
-class TaskStorageService:
+class TaskJsonStorage:
 
     FILE_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'tasks.json')
     

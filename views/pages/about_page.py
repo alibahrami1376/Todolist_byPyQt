@@ -19,7 +19,7 @@ class AboutPage(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # قاب خاکستری در مرکز صفحه
+        
         box = QFrame()
         box.setFixedWidth(600)
         box.setStyleSheet("""
@@ -33,7 +33,7 @@ class AboutPage(QWidget):
         box_layout = QVBoxLayout(box)
         box_layout.setSpacing(20)
 
-        # متن
+        
         label = QLabel(
             "Tempus\n\nHeya! It's the creator of Tempus. I hope you've enjoyed using this app as much as I enjoyed making it.\n\n"
             "I'm a school student and can't earn money LEGALLY. If you like the app, please consider giving it a ⭐ on GitHub!\n\n"
@@ -44,7 +44,7 @@ class AboutPage(QWidget):
         label.setFont(QFont("Segoe UI", 10))
         box_layout.addWidget(label)
 
-        # دکمه‌ها
+       
         button_layout = QHBoxLayout()
         button_layout.setSpacing(15)
 
@@ -81,5 +81,5 @@ class AboutPage(QWidget):
         box_layout.addLayout(button_layout)
         main_layout.addWidget(box)
 
-        # اتصال عملکرد برگشت
+    
         btn_return.clicked.connect(lambda: self.parent().switch_requested.emit("dashboard"))
