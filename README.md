@@ -29,8 +29,10 @@ A personal assistant application for task management, journaling, and time track
 ## 🚀 Features
 
 - **Guest mode (current)**: store tasks and data locally in JSON files
-- Dark and light theme support via QSS
+- Dark theme support 
 - Desktop notifications and system tray integration
+- User mode with registration and login 
+- Has a dashboard page to show completed or pending tasks and the last five tasks 
 
 ---
 
@@ -52,7 +54,7 @@ This project follows the **MVVM** pattern to maintain clear separation of
 - **Python** 3.8 or higher
 - **pip**
 - **Git**
-
+- **PYQT6**
 ---
 
 ## 💾 Installation & Setup
@@ -70,10 +72,6 @@ This project follows the **MVVM** pattern to maintain clear separation of
 3. **Install runtime dependencies**
    ```bash
    pip install -r requirements.txt
-   ```
-4. **(Optional) Install dev dependencies**
-   ```bash
-   pip install -r requirements-dev.txt
    ```
 
 ---
@@ -123,33 +121,11 @@ python main.py
 
 ## 🖼️ Screenshots
 
-
-
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
 ---
 
-## 🔧 Configuration
-
-Configuration file: `config/settings.json`
-
-```json
-{
-  "database_url": "sqlite:///data/tasks.db",
-  "notify_tray": true,
-  "theme": "dark"
-}
-```
-
----
-
-## 🛠️ Development Dependencies
-
-Listed in `requirements-dev.txt`:
-
-- **pytest** for tests
-- **pyinstaller**, **altgraph**, **pefile** for packaging
-- **flake8**, **black** for linting
-
----
 
 ## 📂 Project Structure
 
@@ -172,8 +148,7 @@ Todolist_byPyQt/
 ├── main.py              # Entry point
 ├── requirements.txt
 ├── requirements-dev.txt
-├── alembic.ini
-├── ci.yml               # GitHub Actions workflow
+├── alembic.ini              
 ├── README.md
 └── .gitignore
 ```
@@ -182,10 +157,8 @@ Todolist_byPyQt/
 
 ## 🛣️ Roadmap
 
-- **User mode with registration and login** (coming soon)
 - **Time tracking and journaling per task** (coming soon)
 - Recurring tasks scheduler
 - Time-journal export (CSV/PDF)
 - Cloud sync via REST API
-- Mobile companion app
 
