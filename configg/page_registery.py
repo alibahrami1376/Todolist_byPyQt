@@ -12,6 +12,12 @@ from views.pages.settings_pages import SettingsPage
 from views.pages.register_page import RegisterPage
 from views.pages.taskeditore_page import TaskEditorPage
 from views.pages.showtask_pag import ShowTaskPage
+from views.pages.fields_page import FieldsPage
+from views.pages.field_one_page import FieldOnePage
+from views.pages.field_two_page import FieldTwoPage
+from views.pages.field_three_page import FieldThreePage
+from views.pages.field_four_page import FieldFourPage
+from views.pages.ideas_page import IdeasPage
 from typing import Optional
 from models.task_models import TaskModel
 
@@ -27,6 +33,13 @@ class PageRegistry:
         self.todo= TodoListPage()
         self.userdash= UserDashboardPage()
         self.register= RegisterPage()
+        self.fields = FieldsPage(
+            open_field_one=self.open_field_one,
+            open_field_two=self.open_field_two,
+            open_field_three=self.open_field_three,
+            open_field_four=self.open_field_four,
+        )
+        self.ideas = IdeasPage()
         # self.editor= None
 
     # @property
@@ -39,3 +52,19 @@ class PageRegistry:
         return TaskEditorPage(task)
     def show_task(self,task:TaskModel):
         return ShowTaskPage(task)
+
+    def open_field_one(self):
+        dlg = FieldOnePage()
+        dlg.exec()
+
+    def open_field_two(self):
+        dlg = FieldTwoPage()
+        dlg.exec()
+
+    def open_field_three(self):
+        dlg = FieldThreePage()
+        dlg.exec()
+
+    def open_field_four(self):
+        dlg = FieldFourPage()
+        dlg.exec()

@@ -4,13 +4,11 @@ from PyQt6.QtGui import QIcon
 
 from core.session_manager import Session
 from core.session_task import Task_Session
-from viewmodels.task_viewmodels import TaskViewModel
 
 class DashboardPage(QWidget):
     def __init__(self):
         super().__init__()
         Session.session_user_set.connect(self.reload_user)
-        # self.task_viewmodel = TaskViewModel()
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)

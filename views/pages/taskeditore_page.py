@@ -9,7 +9,6 @@ from typing import Optional
 
 from utils.stylesheet_loader import load_stylesheet
 from utils.app_notifier import AppNotifier
-from viewmodels.task_viewmodels import TaskViewModel
 
 class TaskEditorPage(QDialog):
     task_saved = pyqtSignal(TaskModel)
@@ -18,7 +17,6 @@ class TaskEditorPage(QDialog):
         super().__init__()
 
         self.setWindowTitle("Task Editor")
-        self.TaskViewmodel= TaskViewModel()
         self.task= task
         self.flag_edit= False if self.task is None else True
         self.init_ui()

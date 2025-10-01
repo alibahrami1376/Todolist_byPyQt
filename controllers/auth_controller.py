@@ -5,9 +5,11 @@ from PyQt6.QtCore import QObject
 
 from views.pages.login_page import LoginPage
 from views.main_frameless_window import MainFramelessWindow
-from viewmodels.auth_viewmodel import UserViewModel
 from services.user_service import UserService
 from utils.app_notifier import AppNotifier
+from mapper.user_mapper import map_entity_to_model, map_model_to_entity
+from utils.security import hash_password, check_password
+from models.user_models import UserModel
 
 from core.session_manager import Session
 from services.db_session import get_session
@@ -27,7 +29,7 @@ class AuthController(QObject):
         self.userdash_page= userdash_page
         self.register_page= register_page
         self.page_manager = page_manager
-        self.user_viewmodel = UserViewModel(UserService(get_session))
+        self.user_service = UserService(get_session)
        
 
         self.connect_signals()
@@ -38,8 +40,9 @@ class AuthController(QObject):
         self.login_page.guest_requested.connect(self.continue_as_guest)
        
     def handle_login(self, username: str, password: str):
-        user = self.user_viewmodel.validate_credentials(username,password)
-        if user:
+        user_entity = self.user_service.fetch_user(username)
+        if user_entity and check_password(password, user_entity.password):
+            user = map_entity_to_model(user_entity)
             Session.set_user(user)
             AppNotifier(QWidget).warning("Success","You have successfully logged in.")
            
@@ -55,11 +58,13 @@ class AuthController(QObject):
 
         
     def event_register(self,data: dict):
-        user = self.user_viewmodel.register_dict(data)
+        data["password"] = hash_password(data.get("password", ""))
+        user_model = UserModel.from_dict(data)
+        self.user_service.create_user(map_model_to_entity(user_model))
 
 
     def continue_as_guest(self):
-        user = self.user_viewmodel.creat_guest()
+        user = UserModel(username="GUEST", password="")
         Session.set_guest()
         Session.set_user(user)
         AppNotifier(QWidget).warning("Success","You have successfully logged in.")

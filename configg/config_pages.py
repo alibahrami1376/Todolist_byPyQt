@@ -29,3 +29,5 @@ class ConfigPages:
         self.window.add_page(self.pages.timer, "Timer")
         self.window.add_page(self.pages.todo, "TodoList")
         self.window.add_page(self.pages.userdash,"usdash")
+        self.window.add_page(self.pages.fields, "Fields")
+        self.window.add_page(self.pages.ideas, "Ideas")
