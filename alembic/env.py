@@ -9,6 +9,8 @@ from services.db_session import Base  # یا wherever Base is
 from models.db.task_entity import TaskEntity
 from models.db.user_entity import UserEntity
 from models.db.idea_entity import IdeaEntity
+from models.db.project_entity import ProjectEntity
+from models.db.learning_path_entity import LearningPathEntity
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

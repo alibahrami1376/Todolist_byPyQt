@@ -5,10 +5,11 @@ import uuid
 
 from services.idea_service import IdeaService
 from utils.app_notifier import AppNotifier
+from views.pages.idea_workspace_page import IdeaWorkspacePage
 
 
 class IdeaDetailDialog(QDialog):
-    def __init__(self, idea_id: str, title: str, description: str, created_at: str, service: IdeaService):
+    def __init__(self, idea_id: str, title: str, summary: str, goal: str, created_at: str, service: IdeaService):
         super().__init__()
         self.setWindowTitle("جزئیات ایده")
         self.idea_id = idea_id
@@ -20,10 +21,16 @@ class IdeaDetailDialog(QDialog):
         layout.setSpacing(10)
 
         layout.addWidget(QLabel(f"عنوان: {title}"))
-        desc = QTextEdit()
-        desc.setReadOnly(True)
-        desc.setPlainText(description or "")
-        layout.addWidget(desc)
+        layout.addWidget(QLabel("خلاصه"))
+        summary_view = QTextEdit()
+        summary_view.setReadOnly(True)
+        summary_view.setPlainText(summary or "")
+        layout.addWidget(summary_view)
+        layout.addWidget(QLabel("هدف"))
+        goal_view = QTextEdit()
+        goal_view.setReadOnly(True)
+        goal_view.setPlainText(goal or "")
+        layout.addWidget(goal_view)
         layout.addWidget(QLabel(f"تاریخ ایجاد: {created_at}"))
 
         btns = QHBoxLayout()
@@ -60,9 +67,13 @@ class IdeaEditorDialog(QDialog):
         self.title_line = QLineEdit()
         layout.addWidget(self.title_line)
 
-        layout.addWidget(QLabel("توضیحات"))
-        self.desc_edit = QTextEdit()
-        layout.addWidget(self.desc_edit)
+        layout.addWidget(QLabel("خلاصه"))
+        self.summary_edit = QTextEdit()
+        layout.addWidget(self.summary_edit)
+
+        layout.addWidget(QLabel("هدف"))
+        self.goal_edit = QTextEdit()
+        layout.addWidget(self.goal_edit)
 
         btns = QHBoxLayout()
         btn_save = QPushButton("ذخیره")
@@ -75,11 +86,13 @@ class IdeaEditorDialog(QDialog):
 
     def _save(self):
         title = self.title_line.text().strip()
-        description = self.desc_edit.toPlainText().strip()
+        summary = self.summary_edit.toPlainText().strip()
+        goal = self.goal_edit.toPlainText().strip()
         if not title:
             AppNotifier(QWidget).warning("خطا", "عنوان ایده الزامی است")
             return
-        self.service.add_idea(uuid.uuid4().hex, title, description)
+        idea_id = uuid.uuid4().hex
+        self.service.add_idea(idea_id, title, summary, goal)
         self.saved = True
         self.accept()
 
@@ -118,18 +131,18 @@ class IdeasPage(QWidget):
     def load_ideas(self):
         self.list_widget.clear()
         icon = QIcon("icons/information.png")
-        for id_value, title, description, created_at in self.service.list_ideas():
+        for id_value, title, summary, created_at in self.service.list_ideas():
             item = QListWidgetItem(icon, title)
-            item.setData(Qt.ItemDataRole.UserRole, (id_value, title, description, created_at))
+            item.setData(Qt.ItemDataRole.UserRole, (id_value, title, summary, created_at))
             item.setSizeHint(QSize(120, 120))
             self.list_widget.addItem(item)
 
     def open_detail(self, item: QListWidgetItem):
-        id_value, title, description, created_at = item.data(Qt.ItemDataRole.UserRole)
-        dlg = IdeaDetailDialog(id_value, title, description, created_at, self.service)
-        dlg.exec()
-        if dlg.deleted:
-            self.load_ideas()
+        id_value, title, summary, created_at = item.data(Qt.ItemDataRole.UserRole)
+        _id, _title, summary_full, goal_full, created_at_full = self.service.get_idea(id_value)
+        workspace = IdeaWorkspacePage(idea_id=id_value, idea_title=title, idea_summary=summary_full, idea_goal=goal_full, idea_created_at=created_at_full)
+        workspace.exec()
+        self.load_ideas()
 
     def new_idea(self):
         dlg = IdeaEditorDialog(self.service)
