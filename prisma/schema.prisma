@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Project {
+  id              String           @id @default(uuid())
+  title           String
+  summary         String           @default("")
+  startDate       DateTime?
+  endDate         DateTime?
+  estimatedHours  Float            @default(0)
+  status          ProjectStatus    @default(planned)
+  priority        ProjectPriority  @default(medium)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  columns         Column[]
+  steps           ProjectStep[]
+}
+
+model Column {
+  id         String       @id @default(uuid())
+  projectId  String
+  title      String
+  order      Int          @default(0)
+  createdAt  DateTime     @default(now())
+
+  project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  steps      ProjectStep[]
+}
+
+model ProjectStep {
+  id              String       @id @default(uuid())
+  projectId       String
+  columnId        String
+  title           String
+  description     String       @default("")
+  startDate       DateTime?
+  endDate         DateTime?
+  estimatedHours  Float        @default(0)
+  actionType      ActionType   @default(research)
+  notes           String       @default("")
+  status          StepStatus   @default(planned)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  column          Column       @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  tags            TaskTag[]
+  attachments     Attachment[]
+  comments        Comment[]
+}
+
+model Tag {
+  id     String    @id @default(uuid())
+  name   String    @unique
+  color  String    @default("#999999")
+  steps  TaskTag[]
+}
+
+model TaskTag {
+  stepId String
+  tagId  String
+
+  step   ProjectStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  tag    Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([stepId, tagId])
+}
+
+model Attachment {
+  id        String         @id @default(uuid())
+  stepId    String
+  fileUrl   String
+  type      AttachmentType @default(link)
+  createdAt DateTime       @default(now())
+
+  step      ProjectStep    @relation(fields: [stepId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String     @id @default(uuid())
+  stepId    String
+  author    String
+  content   String
+  createdAt DateTime   @default(now())
+
+  step      ProjectStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+}
+
+enum ProjectStatus {
+  planned
+  in_progress
+  completed
+  paused
+}
+
+enum ProjectPriority {
+  low
+  medium
+  high
+}
+
+enum ActionType {
+  research
+  learning
+  coding
+  design
+  testing
+}
+
+enum StepStatus {
+  planned
+  in_progress
+  done
+}
+
+enum AttachmentType {
+  image
+  document
+  link
+}
+
+

@@ -4,6 +4,10 @@ from services.db_session import get_session, Base, engine
 from models.db.idea_entity import IdeaEntity
 from models.db.project_entity import ProjectEntity  # ensure mapper is loaded
 from models.db.learning_path_entity import LearningPathEntity  # ensure mapper is loaded
+from models.db.category_entity import CategoryEntity  # ensure mapper is loaded
+from models.db.answer_entity import AnswerEntity  # ensure mapper is loaded
+from models.db.insight_entity import InsightEntity  # ensure mapper is loaded
+from models.db.project_step_entity import ProjectStepEntity  # ensure mapper is loaded
 
 
 class IdeaService:

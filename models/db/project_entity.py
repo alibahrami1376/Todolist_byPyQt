@@ -25,5 +25,5 @@ class ProjectEntity(Base):
     idea: Mapped["IdeaEntity"] = relationship(back_populates="projects")
     learning_paths: Mapped[list["LearningPathEntity"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     steps: Mapped[list["ProjectStepEntity"]] = relationship(back_populates="project", cascade="all, delete-orphan")
-    columns: Mapped[list["ColumnEntity"]] = relationship(back_populates="project", cascade="all, delete-orphan")
+
 
