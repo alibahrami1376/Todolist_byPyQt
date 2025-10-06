@@ -8,6 +8,7 @@ from models.db.category_entity import CategoryEntity  # ensure mapper is loaded
 from models.db.answer_entity import AnswerEntity  # ensure mapper is loaded
 from models.db.insight_entity import InsightEntity  # ensure mapper is loaded
 from models.db.project_step_entity import ProjectStepEntity  # ensure mapper is loaded
+from models.db.question_entity import QuestionEntity  # ensure mapper is loaded
 
 
 class IdeaService:
