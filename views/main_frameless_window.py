@@ -1,5 +1,5 @@
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget,QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
 from PyQt6.QtCore import Qt,pyqtSignal
 
 
@@ -7,6 +7,7 @@ from views.widgets.custom_titlebar import CustomTitleBar
 from views.widgets.sidebar import Sidebar
 from utils.app_notifier import AppNotifier
 from core.session_manager import Session
+from views.pages.theme_settings_page import ThemeSettingsPage
 
 class MainFramelessWindow(QWidget):
     handle_exit= pyqtSignal()
@@ -30,8 +31,10 @@ class MainFramelessWindow(QWidget):
 
         self.pages = {}
         self.stack = QStackedWidget()
-
         self.init_ui()
+    # افزودن صفحه تنظیمات تم
+        self.theme_settings_page = ThemeSettingsPage(main_window=self)
+        self.add_page(self.theme_settings_page, "تنظیمات تم")
 
     def init_ui(self):
         wrapper = QVBoxLayout(self)
