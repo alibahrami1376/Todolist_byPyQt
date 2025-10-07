@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton,QLabel
-from PyQt6.QtCore import Qt,pyqtSignal
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton, QLabel, QToolBar, QSizePolicy
+from PyQt6.QtCore import Qt, pyqtSignal, QSize
 import os
 
 
@@ -15,10 +15,9 @@ class MainFramelessWindow(QWidget):
     handle_exit= pyqtSignal()
     def __init__(self):
         super().__init__()
-        
         self.notifier = AppNotifier(self)
         self.notifier.set_parent(self)
-    # نوار منو (هدر)
+        # نوار منو (هدر)
         self.menu_bar = CustomMenuBar(self)
 
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
@@ -29,8 +28,65 @@ class MainFramelessWindow(QWidget):
         self.pages = {}
         self.sidebar_hidden = False
         self.stack = QStackedWidget()
-    # ...existing code...
+
+        # ساخت نوار ابزار بالایی
+        self.top_toolbar = QToolBar("Top Toolbar", self)
+        self.top_toolbar.setIconSize(QSize(18, 18))
+        # رنگ نوار ابزار بالایی را با رنگ اپلیکیشن هماهنگ کن
+        self.top_toolbar.setStyleSheet("QToolBar { background: none; border: none; }")
+        # افزودن دکمه‌ها به نوار بالایی و دکمه جمع‌کننده نوار بغل
+        self._add_top_toolbar_actions()
+        self._add_sidebar_handle_to_toolbar()
+    def _add_sidebar_handle_to_toolbar(self):
+        # دکمه جمع‌کننده نوار بغل (≡) را به نوار ابزار بالایی منتقل کن
+        self.sidebar_handle = QToolButton()
+        self.sidebar_handle.setText("≡")
+        self.sidebar_handle.setFixedWidth(24)
+        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
+        self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
+        self.top_toolbar.addWidget(self.sidebar_handle)
+
+        # ساخت نوار ابزار پایینی
+        self.bottom_toolbar = QToolBar("Bottom Toolbar", self)
+        self.bottom_toolbar.setIconSize(QSize(18, 18))
+        self.bottom_toolbar.setFixedHeight(25)
+        self.bottom_toolbar.setStyleSheet("QToolBar { background: #222; color: #fff; border: none; }")
+        self.bottom_toolbar.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self._add_bottom_toolbar_widgets()
+
+        # ...existing code...
         self.init_ui()
+    def _add_top_toolbar_actions(self):
+        from PyQt6.QtGui import QIcon
+        # مسیر آیکون‌ها
+        icon_path = lambda name: os.path.join("icons", name)
+        # افزودن دکمه افزودن
+        add_action = self.top_toolbar.addAction(QIcon(icon_path("add.png")), "افزودن")
+        add_action.setToolTip("افزودن مورد جدید")
+        # افزودن دکمه ذخیره
+        save_action = self.top_toolbar.addAction(QIcon(icon_path("save.png")) if os.path.exists(icon_path("save.png")) else QIcon(icon_path("add.png")), "ذخیره")
+        save_action.setToolTip("ذخیره تغییرات")
+        # افزودن دکمه به‌روزرسانی
+        update_action = self.top_toolbar.addAction(QIcon(icon_path("update.png")) if os.path.exists(icon_path("update.png")) else QIcon(icon_path("add.png")), "به‌روزرسانی")
+        update_action.setToolTip("به‌روزرسانی اطلاعات")
+
+    def _add_bottom_toolbar_widgets(self):
+        from PyQt6.QtGui import QIcon
+        # ساعت
+        clock_label = QLabel("12:00")
+        clock_label.setStyleSheet("color: #fff; font-size: 13px; margin-left: 8px;")
+        self.bottom_toolbar.addWidget(clock_label)
+        # وضعیت اتصال
+        status_label = QLabel("وضعیت: متصل")
+        status_label.setStyleSheet("color: #fff; font-size: 13px; margin-left: 16px;")
+        self.bottom_toolbar.addWidget(status_label)
+        # پیام‌ها
+        msg_icon = QToolButton()
+        msg_icon.setIcon(QIcon(os.path.join("icons", "information.png")))
+        msg_icon.setIconSize(QSize(16, 16))
+        msg_icon.setStyleSheet("background: transparent; margin-left: 16px;")
+        msg_icon.setToolTip("پیام‌ها")
+        self.bottom_toolbar.addWidget(msg_icon)
     # افزودن صفحه تنظیمات تم
         self.theme_settings_page = ThemeSettingsPage(main_window=self)
         self.add_page(self.theme_settings_page, "تنظیمات تم")
@@ -65,11 +121,13 @@ class MainFramelessWindow(QWidget):
         wrapper.setContentsMargins(0, 0, 0, 0)
         wrapper.setSpacing(0)
 
-
-    # فقط نوار عنوان (CustomTitleBar) در بالای صفحه
+        # نوار عنوان سفارشی
         self.title_bar = CustomTitleBar(self)
         self.title_bar.setStyleSheet("padding-top: 8px;")
         wrapper.addWidget(self.title_bar)
+
+        # نوار ابزار بالایی
+        wrapper.addWidget(self.top_toolbar)
 
         # محتوای صفحات (QStackedWidget + Sidebar)
         content_layout = QHBoxLayout()
@@ -81,17 +139,12 @@ class MainFramelessWindow(QWidget):
         self.sidebar.request_hide.connect(self.toggle_sidebar)
         content_layout.addWidget(self.sidebar)
 
-        # Sidebar handle (always visible when sidebar is hidden)
-        self.sidebar_handle = QToolButton()
-        self.sidebar_handle.setText("≡")
-        self.sidebar_handle.setFixedWidth(24)
-        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
-        self.sidebar_handle.setVisible(False)
-        content_layout.addWidget(self.sidebar_handle)
-
         content_layout.addWidget(self.stack)
 
         wrapper.addLayout(content_layout)
+
+        # نوار ابزار پایینی
+        wrapper.addWidget(self.bottom_toolbar)
 
     def add_page(self, widget: QWidget, name: str):
         self.pages[name.lower()] = widget
