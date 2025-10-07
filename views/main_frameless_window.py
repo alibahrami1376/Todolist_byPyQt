@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton,QLabel
 from PyQt6.QtCore import Qt,pyqtSignal
 import os
 
@@ -29,7 +29,7 @@ class MainFramelessWindow(QWidget):
         self.pages = {}
         self.sidebar_hidden = False
         self.stack = QStackedWidget()
-        self.menu_bar = None  # مقداردهی اولیه
+    # ...existing code...
         self.init_ui()
     # افزودن صفحه تنظیمات تم
         self.theme_settings_page = ThemeSettingsPage(main_window=self)
@@ -65,13 +65,16 @@ class MainFramelessWindow(QWidget):
         wrapper.setContentsMargins(0, 0, 0, 0)
         wrapper.setSpacing(0)
 
-        # نوار منو (هدر)
+        # Title Bar (بالای صفحه)
+        self.title_bar = CustomTitleBar(self)
+        self.title_bar.setStyleSheet("padding-top: 8px;")
+        wrapper.addWidget(self.title_bar)
+
+        # QMenuBar با ارتفاع ثابت
+        self.menu_bar.setFixedHeight(25)
         wrapper.addWidget(self.menu_bar)
 
-        # Title Bar
-        self.title_bar = CustomTitleBar(self)
-        wrapper.addWidget(self.title_bar)
-        # Sidebar + Page stack
+        # محتوای صفحات (QStackedWidget + Sidebar)
         content_layout = QHBoxLayout()
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(0)
@@ -79,7 +82,6 @@ class MainFramelessWindow(QWidget):
         self.sidebar = Sidebar()
         self.sidebar.switch_requested.connect(self.switch_page)
         self.sidebar.request_hide.connect(self.toggle_sidebar)
-
         content_layout.addWidget(self.sidebar)
 
         # Sidebar handle (always visible when sidebar is hidden)
