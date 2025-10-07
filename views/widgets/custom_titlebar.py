@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QFrame
 from PyQt6.QtCore import Qt, QPoint
+import os
+from utils.stylesheet_loader import load_stylesheet
 from PyQt6.QtGui import QIcon
 
 class CustomTitleBar(QFrame):
@@ -35,7 +37,12 @@ class CustomTitleBar(QFrame):
         self.close_btn.setFixedSize(20, 20)
         self.close_btn.clicked.connect(self.close_window)
 
-        for btn in [self.minimize_btn, self.close_btn]:
+        # Theme toggle button
+        self.theme_btn = QPushButton("☼")
+        self.theme_btn.setFixedSize(24, 24)
+        self.theme_btn.clicked.connect(self.toggle_theme)
+
+        for btn in [self.theme_btn, self.minimize_btn, self.close_btn]:
             btn.setStyleSheet("""
                 QPushButton {
                     background-color: transparent;
@@ -56,6 +63,32 @@ class CustomTitleBar(QFrame):
     def close_window(self):
         if self.parent:
             self.parent.close()
+
+    def toggle_theme(self):
+        if not self.parent:
+            return
+        # Read current
+        config_path = "configg/theme_config.txt"
+        current = "روشن"
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    current = f.read().strip() or "روشن"
+            except Exception:
+                current = "روشن"
+
+        new_theme = "دارک" if current != "دارک" else "روشن"
+        try:
+            os.makedirs("configg", exist_ok=True)
+            with open(config_path, "w", encoding="utf-8") as f:
+                f.write(new_theme)
+        except Exception:
+            pass
+
+        if new_theme == "دارک":
+            self.parent.setStyleSheet(load_stylesheet("styles/dark.qss"))
+        else:
+            self.parent.setStyleSheet("")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

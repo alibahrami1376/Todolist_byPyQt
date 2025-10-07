@@ -1,6 +1,7 @@
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
 from PyQt6.QtCore import Qt,pyqtSignal
+import os
 
 
 from views.widgets.custom_titlebar import CustomTitleBar
@@ -8,6 +9,7 @@ from views.widgets.sidebar import Sidebar
 from utils.app_notifier import AppNotifier
 from core.session_manager import Session
 from views.pages.theme_settings_page import ThemeSettingsPage
+from utils.stylesheet_loader import load_stylesheet
 
 class MainFramelessWindow(QWidget):
     handle_exit= pyqtSignal()
@@ -20,14 +22,7 @@ class MainFramelessWindow(QWidget):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setMinimumSize(1000, 600)
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #1e1e1e;
-                color: white;
-                font-family: Segoe UI;
-                font-size: 14px;
-            }
-        """)
+        self.apply_theme_from_config()
 
         self.pages = {}
         self.stack = QStackedWidget()
@@ -35,6 +30,21 @@ class MainFramelessWindow(QWidget):
     # افزودن صفحه تنظیمات تم
         self.theme_settings_page = ThemeSettingsPage(main_window=self)
         self.add_page(self.theme_settings_page, "تنظیمات تم")
+
+    def apply_theme_from_config(self):
+        config_path = "configg/theme_config.txt"
+        theme = "روشن"
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    theme = f.read().strip() or "روشن"
+            except Exception:
+                theme = "روشن"
+
+        if theme == "دارک":
+            self.setStyleSheet(load_stylesheet("styles/dark.qss"))
+        else:
+            self.setStyleSheet("")
 
     def init_ui(self):
         wrapper = QVBoxLayout(self)
