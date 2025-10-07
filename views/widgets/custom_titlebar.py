@@ -37,12 +37,17 @@ class CustomTitleBar(QFrame):
         self.close_btn.setFixedSize(20, 20)
         self.close_btn.clicked.connect(self.close_window)
 
+        # Sidebar toggle button
+        self.sidebar_btn = QPushButton("≡")
+        self.sidebar_btn.setFixedSize(24, 24)
+        self.sidebar_btn.clicked.connect(self.toggle_sidebar)
+
         # Theme toggle button
         self.theme_btn = QPushButton("☼")
         self.theme_btn.setFixedSize(24, 24)
         self.theme_btn.clicked.connect(self.toggle_theme)
 
-        for btn in [self.theme_btn, self.minimize_btn, self.close_btn]:
+        for btn in [self.sidebar_btn, self.theme_btn, self.minimize_btn, self.close_btn]:
             btn.setStyleSheet(self.button_style(self.is_dark))
             layout.addWidget(btn)
 
@@ -97,7 +102,7 @@ class CustomTitleBar(QFrame):
         else:
             self.setStyleSheet("background-color: #f1f1f1;")
             self.title_label.setStyleSheet("font-weight: bold; color: #1e1e1e;")
-        for btn in [self.theme_btn, self.minimize_btn, self.close_btn]:
+        for btn in [self.sidebar_btn, self.theme_btn, self.minimize_btn, self.close_btn]:
             btn.setStyleSheet(self.button_style(is_dark))
 
     def button_style(self, is_dark: bool) -> str:
@@ -124,6 +129,11 @@ class CustomTitleBar(QFrame):
                 border-radius: 10px;
             }
         """
+
+    def toggle_sidebar(self):
+        if self.parent:
+            if hasattr(self.parent, "toggle_sidebar"):
+                self.parent.toggle_sidebar()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

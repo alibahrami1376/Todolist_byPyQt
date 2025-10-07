@@ -18,19 +18,19 @@ class FieldsPage(QWidget):
         title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(title)
 
-        btn1 = QPushButton("Field 1")
+        btn1 = QPushButton("exercise")
         btn1.clicked.connect(self.open_field_one)
         layout.addWidget(btn1)
 
-        btn2 = QPushButton("Field 2")
+        btn2 = QPushButton("Nutrition")
         btn2.clicked.connect(self.open_field_two)
         layout.addWidget(btn2)
 
-        btn3 = QPushButton("Field 3")
+        btn3 = QPushButton("Programming")
         btn3.clicked.connect(self.open_field_three)
         layout.addWidget(btn3)
 
-        btn4 = QPushButton("Field 4")
+        btn4 = QPushButton("English")
         btn4.clicked.connect(self.open_field_four)
         layout.addWidget(btn4)
 

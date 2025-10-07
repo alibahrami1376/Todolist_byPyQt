@@ -25,6 +25,7 @@ class MainFramelessWindow(QWidget):
         self.apply_theme_from_config()
 
         self.pages = {}
+        self.sidebar_hidden = False
         self.stack = QStackedWidget()
         self.init_ui()
     # افزودن صفحه تنظیمات تم
@@ -93,6 +94,12 @@ class MainFramelessWindow(QWidget):
             self.stack.setCurrentWidget(self.pages[name.lower()])
         else:
             raise ValueError(f"Page '{name}' not found.")
+
+    def toggle_sidebar(self):
+        if not hasattr(self, "sidebar"):
+            return
+        self.sidebar_hidden = not self.sidebar_hidden
+        self.sidebar.setVisible(not self.sidebar_hidden)
     def closeEvent(self, event):
         if AppNotifier(QWidget).confirm(
             "Exit Confirmation",
