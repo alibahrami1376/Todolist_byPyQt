@@ -1,0 +1,66 @@
+/* styles/light.qss */
+
+QWidget {
+    background-color: #ffffff;
+    color: #1e1e1e;
+    font-family: 'Segoe UI';
+    font-size: 14px;
+}
+
+QLabel {
+    color: #1e1e1e;
+}
+
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: #f6f6f6;
+    color: #1e1e1e;
+    border: 1px solid #cfcfcf;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+QPushButton {
+    background-color: #eaeaea;
+    color: #1e1e1e;
+    border-radius: 5px;
+    padding: 6px 12px;
+}
+
+QPushButton:hover {
+    background-color: #dcdcdc;
+}
+
+QComboBox, QDateEdit {
+    background-color: #f6f6f6;
+    color: #1e1e1e;
+    border: 1px solid #cfcfcf;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    color: #1e1e1e;
+    font-size: 14px;
+    padding: 6px;
+}
+
+QListWidget::item {
+    padding: 6px;
+    border-radius: 4px;
+}
+
+QListWidget::item:selected {
+    background-color: #e6f0ff;
+    color: #1e1e1e;
+}
+
+QToolTip {
+    background-color: #f0f0f0;
+    color: #1e1e1e;
+    border: 1px solid #cfcfcf;
+}
+
+
+
