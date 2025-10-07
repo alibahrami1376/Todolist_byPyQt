@@ -51,7 +51,7 @@ class ThemeSettingsPage(QWidget):
             if theme == "دارک":
                 self.main_window.setStyleSheet(self.load_stylesheet("styles/dark.qss"))
             else:
-                self.main_window.setStyleSheet("")
+                self.main_window.setStyleSheet(self.load_stylesheet("styles/light.qss"))
 
     def load_stylesheet(self, path):
         try:

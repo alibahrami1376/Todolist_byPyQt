@@ -9,7 +9,7 @@ class CustomTitleBar(QFrame):
         super().__init__(parent)
         self.parent = parent
         self.setFixedHeight(35)
-        self.setStyleSheet("background-color: #2d2d30;")
+        self.is_dark = True
         self.old_pos = None
 
         layout = QHBoxLayout(self)
@@ -23,7 +23,7 @@ class CustomTitleBar(QFrame):
 
         # Title text
         self.title_label = QLabel("  My Application")
-        self.title_label.setStyleSheet("font-weight: bold; color: white;")
+        self.title_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(self.title_label)
         layout.addStretch()
 
@@ -43,18 +43,11 @@ class CustomTitleBar(QFrame):
         self.theme_btn.clicked.connect(self.toggle_theme)
 
         for btn in [self.theme_btn, self.minimize_btn, self.close_btn]:
-            btn.setStyleSheet("""
-                QPushButton {
-                    background-color: transparent;
-                    color: white;
-                    border: none;
-                }
-                QPushButton:hover {
-                    background-color: #ff5f56;
-                    border-radius: 10px;
-                }
-            """)
+            btn.setStyleSheet(self.button_style(self.is_dark))
             layout.addWidget(btn)
+
+        # Apply theme after all widgets are created
+        self.apply_theme(self.is_dark)
 
     def minimize_window(self):
         if self.parent:
@@ -87,8 +80,50 @@ class CustomTitleBar(QFrame):
 
         if new_theme == "دارک":
             self.parent.setStyleSheet(load_stylesheet("styles/dark.qss"))
+            self.apply_theme(True)
+            if hasattr(self.parent, "sidebar"):
+                self.parent.sidebar.apply_theme(True)
         else:
-            self.parent.setStyleSheet("")
+            self.parent.setStyleSheet(load_stylesheet("styles/light.qss"))
+            self.apply_theme(False)
+            if hasattr(self.parent, "sidebar"):
+                self.parent.sidebar.apply_theme(False)
+
+    def apply_theme(self, is_dark: bool):
+        self.is_dark = is_dark
+        if is_dark:
+            self.setStyleSheet("background-color: #2d2d30;")
+            self.title_label.setStyleSheet("font-weight: bold; color: white;")
+        else:
+            self.setStyleSheet("background-color: #f1f1f1;")
+            self.title_label.setStyleSheet("font-weight: bold; color: #1e1e1e;")
+        for btn in [self.theme_btn, self.minimize_btn, self.close_btn]:
+            btn.setStyleSheet(self.button_style(is_dark))
+
+    def button_style(self, is_dark: bool) -> str:
+        if is_dark:
+            return """
+                QPushButton {
+                    background-color: transparent;
+                    color: white;
+                    border: none;
+                }
+                QPushButton:hover {
+                    background-color: #ff5f56;
+                    border-radius: 10px;
+                }
+            """
+        return """
+            QPushButton {
+                background-color: transparent;
+                color: #1e1e1e;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #ffdada;
+                border-radius: 10px;
+            }
+        """
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

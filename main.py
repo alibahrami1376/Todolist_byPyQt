@@ -9,7 +9,6 @@ from services.db_session import init_db
 # بهینه‌سازی: بارگذاری و اعمال استایل دارک
 from utils.stylesheet_loader import load_stylesheet
 
-
 app = QApplication(sys.argv)
 
 # اعمال حالت دارک

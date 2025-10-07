@@ -43,8 +43,18 @@ class MainFramelessWindow(QWidget):
 
         if theme == "دارک":
             self.setStyleSheet(load_stylesheet("styles/dark.qss"))
+            # propagate to composed widgets
+            # title bar & sidebar have their own palette; sync them
+            if hasattr(self, "title_bar"):
+                self.title_bar.apply_theme(True)
+            if hasattr(self, "sidebar"):
+                self.sidebar.apply_theme(True)
         else:
-            self.setStyleSheet("")
+            self.setStyleSheet(load_stylesheet("styles/light.qss"))
+            if hasattr(self, "title_bar"):
+                self.title_bar.apply_theme(False)
+            if hasattr(self, "sidebar"):
+                self.sidebar.apply_theme(False)
 
     def init_ui(self):
         wrapper = QVBoxLayout(self)
