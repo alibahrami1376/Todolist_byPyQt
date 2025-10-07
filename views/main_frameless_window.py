@@ -1,5 +1,5 @@
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton
 from PyQt6.QtCore import Qt,pyqtSignal
 import os
 
@@ -72,8 +72,18 @@ class MainFramelessWindow(QWidget):
 
         self.sidebar = Sidebar()
         self.sidebar.switch_requested.connect(self.switch_page)
+        self.sidebar.request_hide.connect(self.toggle_sidebar)
 
         content_layout.addWidget(self.sidebar)
+
+        # Sidebar handle (always visible when sidebar is hidden)
+        self.sidebar_handle = QToolButton()
+        self.sidebar_handle.setText("≡")
+        self.sidebar_handle.setFixedWidth(24)
+        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
+        self.sidebar_handle.setVisible(False)
+        content_layout.addWidget(self.sidebar_handle)
+
         content_layout.addWidget(self.stack)
 
         wrapper.addLayout(content_layout)
@@ -100,6 +110,8 @@ class MainFramelessWindow(QWidget):
             return
         self.sidebar_hidden = not self.sidebar_hidden
         self.sidebar.setVisible(not self.sidebar_hidden)
+        if hasattr(self, "sidebar_handle"):
+            self.sidebar_handle.setVisible(self.sidebar_hidden)
     def closeEvent(self, event):
         if AppNotifier(QWidget).confirm(
             "Exit Confirmation",

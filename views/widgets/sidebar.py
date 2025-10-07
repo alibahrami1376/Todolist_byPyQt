@@ -4,6 +4,7 @@ from PyQt6.QtGui import QIcon
 
 class Sidebar(QFrame):
     switch_requested = pyqtSignal(str)
+    request_hide = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -133,15 +134,16 @@ class Sidebar(QFrame):
 
     def toggle(self):
         self.expanded = not self.expanded
-        self.setFixedWidth(100 if self.expanded else 50)
-
+        if not self.expanded:
+            # درخواست برای مخفی شدن کامل سایدبار
+            self.request_hide.emit()
+            return
+        # بازگردانی حالت باز
+        self.setFixedWidth(100)
         for name, btn in self.buttons.items():
-            btn.setText(name if self.expanded else "")
-            btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon if self.expanded else Qt.ToolButtonStyle.ToolButtonIconOnly)
-            # refresh style for current theme
+            btn.setText(name)
+            btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             btn.setStyleSheet(self.style_button(btn.isChecked(), self.is_dark))
-
-        # keep toggle button visible and styled
         self.apply_theme(self.is_dark)
 
     def apply_theme(self, is_dark: bool):
