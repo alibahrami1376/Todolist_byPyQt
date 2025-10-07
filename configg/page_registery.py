@@ -18,6 +18,8 @@ from views.pages.field_two_page import FieldTwoPage
 from views.pages.field_three_page import FieldThreePage
 from views.pages.field_four_page import FieldFourPage
 from views.pages.ideas_page import IdeasPage
+from views.pages.projects_page import ProjectsPage
+from views.pages.learning_paths_page import LearningPathsPage
 from typing import Optional
 from models.task_models import TaskModel
 
@@ -40,6 +42,8 @@ class PageRegistry:
             open_field_four=self.open_field_four,
         )
         self.ideas = IdeasPage()
+        self.projects = ProjectsPage()
+        self.learning_paths = LearningPathsPage()
         # self.editor= None
 
     # @property

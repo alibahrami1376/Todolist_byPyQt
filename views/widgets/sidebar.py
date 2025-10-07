@@ -27,6 +27,8 @@ class Sidebar(QFrame):
             ("About", "about.png"),
             ("Fields", "information.png"),
             ("Ideas", "information.png"),
+            ("Projects", "project.png"),
+            ("LearningPaths", "learning.png"),
         ]
 
         for name, icon in self.sections:

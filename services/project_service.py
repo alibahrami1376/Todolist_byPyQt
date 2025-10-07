@@ -6,6 +6,13 @@ from models.db.project_entity import ProjectEntity
 
 
 class ProjectService:
+    def list_all(self) -> List[Tuple[str, str, str, str, str]]:
+        with get_session() as db:
+            rows = db.scalars(select(ProjectEntity).order_by(ProjectEntity.created_at.desc())).all()
+            return [
+                (p.id, p.title, p.summary, p.status, p.created_at.isoformat())
+                for p in rows
+            ]
     def list_by_idea(self, idea_id: str) -> List[Tuple[str, str, str, str, str]]:
         with get_session() as db:
             rows = db.scalars(
@@ -20,7 +27,7 @@ class ProjectService:
         from uuid import uuid4
         with get_session() as db:
             pid = uuid4().hex
-            db.add(ProjectEntity(id=pid, idea_id=idea_id, title=title, description=description, status=status))
+            db.add(ProjectEntity(id=pid, idea_id=idea_id, title=title, summary=description, status=status))
             db.commit()
             return pid
 

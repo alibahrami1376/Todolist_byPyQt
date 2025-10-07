@@ -31,3 +31,5 @@ class ConfigPages:
         self.window.add_page(self.pages.userdash,"usdash")
         self.window.add_page(self.pages.fields, "Fields")
         self.window.add_page(self.pages.ideas, "Ideas")
+        self.window.add_page(self.pages.projects, "Projects")
+        self.window.add_page(self.pages.learning_paths, "LearningPaths")
