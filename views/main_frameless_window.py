@@ -1,4 +1,3 @@
-
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton
 from PyQt6.QtCore import Qt,pyqtSignal
 import os
@@ -6,6 +5,7 @@ import os
 
 from views.widgets.custom_titlebar import CustomTitleBar
 from views.widgets.sidebar import Sidebar
+from views.widgets.custom_menubar import CustomMenuBar
 from utils.app_notifier import AppNotifier
 from core.session_manager import Session
 from views.pages.theme_settings_page import ThemeSettingsPage
@@ -18,6 +18,8 @@ class MainFramelessWindow(QWidget):
         
         self.notifier = AppNotifier(self)
         self.notifier.set_parent(self)
+    # نوار منو (هدر)
+        self.menu_bar = CustomMenuBar(self)
 
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -27,6 +29,7 @@ class MainFramelessWindow(QWidget):
         self.pages = {}
         self.sidebar_hidden = False
         self.stack = QStackedWidget()
+        self.menu_bar = None  # مقداردهی اولیه
         self.init_ui()
     # افزودن صفحه تنظیمات تم
         self.theme_settings_page = ThemeSettingsPage(main_window=self)
@@ -61,6 +64,9 @@ class MainFramelessWindow(QWidget):
         wrapper = QVBoxLayout(self)
         wrapper.setContentsMargins(0, 0, 0, 0)
         wrapper.setSpacing(0)
+
+        # نوار منو (هدر)
+        wrapper.addWidget(self.menu_bar)
 
         # Title Bar
         self.title_bar = CustomTitleBar(self)
@@ -124,4 +130,3 @@ class MainFramelessWindow(QWidget):
             event.accept()
         else:
             event.ignore()
-        
