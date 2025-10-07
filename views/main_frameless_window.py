@@ -65,14 +65,11 @@ class MainFramelessWindow(QWidget):
         wrapper.setContentsMargins(0, 0, 0, 0)
         wrapper.setSpacing(0)
 
-        # Title Bar (بالای صفحه)
+
+    # فقط نوار عنوان (CustomTitleBar) در بالای صفحه
         self.title_bar = CustomTitleBar(self)
         self.title_bar.setStyleSheet("padding-top: 8px;")
         wrapper.addWidget(self.title_bar)
-
-        # QMenuBar با ارتفاع ثابت
-        self.menu_bar.setFixedHeight(25)
-        wrapper.addWidget(self.menu_bar)
 
         # محتوای صفحات (QStackedWidget + Sidebar)
         content_layout = QHBoxLayout()
