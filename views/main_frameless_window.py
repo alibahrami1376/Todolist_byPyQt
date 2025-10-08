@@ -30,10 +30,11 @@ class MainFramelessWindow(QWidget):
         self.stack = QStackedWidget()
 
         # ساخت نوار ابزار بالایی
-        self.top_toolbar = QToolBar("Top Toolbar", self)
+        self.top_toolbar = QToolBar("Top Toolbar")
         self.top_toolbar.setIconSize(QSize(18, 18))
-        # رنگ نوار ابزار بالایی را با رنگ اپلیکیشن هماهنگ کن
-        self.top_toolbar.setStyleSheet("QToolBar { background: none; border: none; }")
+        # نوار ابزار بالایی کاملاً فیت و بدون margin و با رنگ زمینه اپ
+        self.top_toolbar.setStyleSheet("QToolBar { background: transparent; border: none; padding: 0px; margin: 0px; }")
+        self.top_toolbar.setContentsMargins(0, 0, 0, 0)
         # افزودن دکمه‌ها به نوار بالایی و دکمه جمع‌کننده نوار بغل
         self._add_top_toolbar_actions()
         self._add_sidebar_handle_to_toolbar()
@@ -58,15 +59,16 @@ class MainFramelessWindow(QWidget):
         # ساخت ویجت مرکزی برای چیدمان دکمه‌ها
         toolbar_widget = QWidget()
         layout = QHBoxLayout(toolbar_widget)
-        layout.setContentsMargins(8, 2, 8, 2)
-        layout.setSpacing(6)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         # دکمه افزودن
         btn_add = QToolButton()
         btn_add.setIcon(QIcon(icon_path("add.png")))
         btn_add.setIconSize(QSize(18, 18))
         btn_add.setToolTip("افزودن مورد جدید")
-        btn_add.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; } QToolButton:hover { background: #dcdcdc; }")
+        btn_add.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 2px 8px; } QToolButton:hover { background: #dcdcdc; }")
         layout.addWidget(btn_add)
 
         # دکمه ذخیره
@@ -74,7 +76,7 @@ class MainFramelessWindow(QWidget):
         btn_save.setIcon(QIcon(icon_path("save.png")) if os.path.exists(icon_path("save.png")) else QIcon(icon_path("add.png")))
         btn_save.setIconSize(QSize(18, 18))
         btn_save.setToolTip("ذخیره تغییرات")
-        btn_save.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; } QToolButton:hover { background: #dcdcdc; }")
+        btn_save.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 2px 8px; } QToolButton:hover { background: #dcdcdc; }")
         layout.addWidget(btn_save)
 
         # دکمه به‌روزرسانی
@@ -82,7 +84,7 @@ class MainFramelessWindow(QWidget):
         btn_update.setIcon(QIcon(icon_path("update.png")) if os.path.exists(icon_path("update.png")) else QIcon(icon_path("add.png")))
         btn_update.setIconSize(QSize(18, 18))
         btn_update.setToolTip("به‌روزرسانی اطلاعات")
-        btn_update.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; } QToolButton:hover { background: #dcdcdc; }")
+        btn_update.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 2px 8px; } QToolButton:hover { background: #dcdcdc; }")
         layout.addWidget(btn_update)
 
         # separator
@@ -95,7 +97,7 @@ class MainFramelessWindow(QWidget):
         self.sidebar_handle.setText("≡")
         self.sidebar_handle.setFixedWidth(28)
         self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
-        self.sidebar_handle.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; font-size: 18px; } QToolButton:hover { background: #dcdcdc; }")
+        self.sidebar_handle.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 2px 8px; font-size: 18px; } QToolButton:hover { background: #dcdcdc; }")
         self.sidebar_handle.clicked.connect(self.toggle_sidebar)
         layout.addWidget(self.sidebar_handle)
 
