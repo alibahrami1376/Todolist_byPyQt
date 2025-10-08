@@ -38,13 +38,7 @@ class MainFramelessWindow(QWidget):
         self._add_top_toolbar_actions()
         self._add_sidebar_handle_to_toolbar()
     def _add_sidebar_handle_to_toolbar(self):
-        # دکمه جمع‌کننده نوار بغل (≡) را به نوار ابزار بالایی منتقل کن
-        self.sidebar_handle = QToolButton()
-        self.sidebar_handle.setText("≡")
-        self.sidebar_handle.setFixedWidth(24)
-        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
-        self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
-        self.top_toolbar.addWidget(self.sidebar_handle)
+
 
         # ساخت نوار ابزار پایینی
         self.bottom_toolbar = QToolBar("Bottom Toolbar", self)
@@ -58,17 +52,54 @@ class MainFramelessWindow(QWidget):
         self.init_ui()
     def _add_top_toolbar_actions(self):
         from PyQt6.QtGui import QIcon
-        # مسیر آیکون‌ها
+        from PyQt6.QtWidgets import QToolButton, QWidget, QHBoxLayout, QSizePolicy
         icon_path = lambda name: os.path.join("icons", name)
-        # افزودن دکمه افزودن
-        add_action = self.top_toolbar.addAction(QIcon(icon_path("add.png")), "افزودن")
-        add_action.setToolTip("افزودن مورد جدید")
-        # افزودن دکمه ذخیره
-        save_action = self.top_toolbar.addAction(QIcon(icon_path("save.png")) if os.path.exists(icon_path("save.png")) else QIcon(icon_path("add.png")), "ذخیره")
-        save_action.setToolTip("ذخیره تغییرات")
-        # افزودن دکمه به‌روزرسانی
-        update_action = self.top_toolbar.addAction(QIcon(icon_path("update.png")) if os.path.exists(icon_path("update.png")) else QIcon(icon_path("add.png")), "به‌روزرسانی")
-        update_action.setToolTip("به‌روزرسانی اطلاعات")
+
+        # ساخت ویجت مرکزی برای چیدمان دکمه‌ها
+        toolbar_widget = QWidget()
+        layout = QHBoxLayout(toolbar_widget)
+        layout.setContentsMargins(8, 2, 8, 2)
+        layout.setSpacing(6)
+
+        # دکمه افزودن
+        btn_add = QToolButton()
+        btn_add.setIcon(QIcon(icon_path("add.png")))
+        btn_add.setIconSize(QSize(18, 18))
+        btn_add.setToolTip("افزودن مورد جدید")
+        btn_add.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; } QToolButton:hover { background: #dcdcdc; }")
+        layout.addWidget(btn_add)
+
+        # دکمه ذخیره
+        btn_save = QToolButton()
+        btn_save.setIcon(QIcon(icon_path("save.png")) if os.path.exists(icon_path("save.png")) else QIcon(icon_path("add.png")))
+        btn_save.setIconSize(QSize(18, 18))
+        btn_save.setToolTip("ذخیره تغییرات")
+        btn_save.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; } QToolButton:hover { background: #dcdcdc; }")
+        layout.addWidget(btn_save)
+
+        # دکمه به‌روزرسانی
+        btn_update = QToolButton()
+        btn_update.setIcon(QIcon(icon_path("update.png")) if os.path.exists(icon_path("update.png")) else QIcon(icon_path("add.png")))
+        btn_update.setIconSize(QSize(18, 18))
+        btn_update.setToolTip("به‌روزرسانی اطلاعات")
+        btn_update.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; } QToolButton:hover { background: #dcdcdc; }")
+        layout.addWidget(btn_update)
+
+        # separator
+        sep = QWidget()
+        sep.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        layout.addWidget(sep)
+
+        # دکمه جمع‌کننده نوار بغل (≡)
+        self.sidebar_handle = QToolButton()
+        self.sidebar_handle.setText("≡")
+        self.sidebar_handle.setFixedWidth(28)
+        self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
+        self.sidebar_handle.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 4px 10px; font-size: 18px; } QToolButton:hover { background: #dcdcdc; }")
+        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
+        layout.addWidget(self.sidebar_handle)
+
+        self.top_toolbar.addWidget(toolbar_widget)
 
     def _add_bottom_toolbar_widgets(self):
         from PyQt6.QtGui import QIcon
