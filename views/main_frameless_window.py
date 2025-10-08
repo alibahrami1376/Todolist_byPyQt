@@ -14,7 +14,7 @@ from utils.stylesheet_loader import load_stylesheet
 class MainFramelessWindow(QWidget):
 
     handle_exit= pyqtSignal()
-    
+
     def __init__(self):
         super().__init__()
         self.notifier = AppNotifier(self)
@@ -61,6 +61,7 @@ class MainFramelessWindow(QWidget):
         from PyQt6.QtWidgets import QToolButton, QWidget, QHBoxLayout, QSizePolicy
         icon_path = lambda name: os.path.join("icons", name)
 
+
         # ساخت ویجت مرکزی برای چیدمان دکمه‌ها
         toolbar_widget = QWidget()
         layout = QHBoxLayout(toolbar_widget)
@@ -68,6 +69,21 @@ class MainFramelessWindow(QWidget):
         layout.setSpacing(4)
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
+        
+        # دکمه جمع‌کننده نوار بغل (≡)
+        self.sidebar_handle = QToolButton()
+        self.sidebar_handle.setText("≡")
+        self.sidebar_handle.setFixedWidth(28)
+        self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
+        self.sidebar_handle.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 2px 8px; font-size: 18px; } QToolButton:hover { background: #dcdcdc; }")
+        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
+        layout.addWidget(self.sidebar_handle)
+
+        # separator
+        sep_first = QWidget()
+        sep_first.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        layout.addWidget(sep_first)
+    
         # دکمه افزودن
         btn_add = QToolButton()
         btn_add.setIcon(QIcon(icon_path("add.png")))
@@ -96,15 +112,6 @@ class MainFramelessWindow(QWidget):
         sep = QWidget()
         sep.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         layout.addWidget(sep)
-
-        # دکمه جمع‌کننده نوار بغل (≡)
-        self.sidebar_handle = QToolButton()
-        self.sidebar_handle.setText("≡")
-        self.sidebar_handle.setFixedWidth(28)
-        self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
-        self.sidebar_handle.setStyleSheet("QToolButton { background: #eaeaea; border-radius: 5px; padding: 2px 8px; font-size: 18px; } QToolButton:hover { background: #dcdcdc; }")
-        self.sidebar_handle.clicked.connect(self.toggle_sidebar)
-        layout.addWidget(self.sidebar_handle)
 
         self.top_toolbar.addWidget(toolbar_widget)
 
@@ -211,8 +218,8 @@ class MainFramelessWindow(QWidget):
             return
         self.sidebar_hidden = not self.sidebar_hidden
         self.sidebar.setVisible(not self.sidebar_hidden)
-        if hasattr(self, "sidebar_handle"):
-            self.sidebar_handle.setVisible(self.sidebar_hidden)
+        # if hasattr(self, "sidebar_handle"):
+        #     self.sidebar_handle.setVisible(self.sidebar_hidden)
 
 
     def closeEvent(self, event):
