@@ -12,7 +12,9 @@ from views.pages.theme_settings_page import ThemeSettingsPage
 from utils.stylesheet_loader import load_stylesheet
 
 class MainFramelessWindow(QWidget):
+
     handle_exit= pyqtSignal()
+    
     def __init__(self):
         super().__init__()
         self.notifier = AppNotifier(self)
@@ -38,6 +40,8 @@ class MainFramelessWindow(QWidget):
         # افزودن دکمه‌ها به نوار بالایی و دکمه جمع‌کننده نوار بغل
         self._add_top_toolbar_actions()
         self._add_sidebar_handle_to_toolbar()
+
+
     def _add_sidebar_handle_to_toolbar(self):
 
 
@@ -48,9 +52,10 @@ class MainFramelessWindow(QWidget):
         self.bottom_toolbar.setStyleSheet("QToolBar { background: #222; color: #fff; border: none; }")
         self.bottom_toolbar.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         self._add_bottom_toolbar_widgets()
-
         # ...existing code...
         self.init_ui()
+
+
     def _add_top_toolbar_actions(self):
         from PyQt6.QtGui import QIcon
         from PyQt6.QtWidgets import QToolButton, QWidget, QHBoxLayout, QSizePolicy
@@ -103,6 +108,7 @@ class MainFramelessWindow(QWidget):
 
         self.top_toolbar.addWidget(toolbar_widget)
 
+
     def _add_bottom_toolbar_widgets(self):
         from PyQt6.QtGui import QIcon
         # ساعت
@@ -123,6 +129,7 @@ class MainFramelessWindow(QWidget):
     # افزودن صفحه تنظیمات تم
         self.theme_settings_page = ThemeSettingsPage(main_window=self)
         self.add_page(self.theme_settings_page, "تنظیمات تم")
+
 
     def apply_theme_from_config(self):
         config_path = "configg/theme_config.txt"
@@ -148,6 +155,7 @@ class MainFramelessWindow(QWidget):
                 self.title_bar.apply_theme(False)
             if hasattr(self, "sidebar"):
                 self.sidebar.apply_theme(False)
+
 
     def init_ui(self):
         wrapper = QVBoxLayout(self)
@@ -179,6 +187,7 @@ class MainFramelessWindow(QWidget):
         # نوار ابزار پایینی
         wrapper.addWidget(self.bottom_toolbar)
 
+
     def add_page(self, widget: QWidget, name: str):
         self.pages[name.lower()] = widget
         self.stack.addWidget(widget)
@@ -196,6 +205,7 @@ class MainFramelessWindow(QWidget):
         else:
             raise ValueError(f"Page '{name}' not found.")
 
+
     def toggle_sidebar(self):
         if not hasattr(self, "sidebar"):
             return
@@ -203,6 +213,8 @@ class MainFramelessWindow(QWidget):
         self.sidebar.setVisible(not self.sidebar_hidden)
         if hasattr(self, "sidebar_handle"):
             self.sidebar_handle.setVisible(self.sidebar_hidden)
+
+
     def closeEvent(self, event):
         if AppNotifier(QWidget).confirm(
             "Exit Confirmation",
