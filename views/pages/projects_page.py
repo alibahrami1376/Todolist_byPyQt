@@ -60,6 +60,37 @@ class ProjectCreateGlobalDialog(QDialog):
         layout.addWidget(QLabel("خلاصه"))
         self.summary_edit = QTextEdit()
         layout.addWidget(self.summary_edit)
+
+        # شروع ساعت
+        layout.addWidget(QLabel("شروع ساعت"))
+        self.start_time_edit = QLineEdit()
+        self.start_time_edit.setPlaceholderText("مثال: 08:00")
+        layout.addWidget(self.start_time_edit)
+
+        # پایان ساعت
+        layout.addWidget(QLabel("پایان ساعت"))
+        self.end_time_edit = QLineEdit()
+        self.end_time_edit.setPlaceholderText("مثال: 17:00")
+        layout.addWidget(self.end_time_edit)
+
+        # ساعت مورد نیاز پروژه
+        layout.addWidget(QLabel("ساعت مورد نیاز پروژه"))
+        self.required_hours_edit = QLineEdit()
+        self.required_hours_edit.setPlaceholderText("مثال: 40")
+        layout.addWidget(self.required_hours_edit)
+
+        # وضعیت انجام
+        layout.addWidget(QLabel("وضعیت انجام"))
+        self.status_combo = QComboBox()
+        self.status_combo.addItems(["در حال انجام", "تکمیل شده", "متوقف شده"])
+        layout.addWidget(self.status_combo)
+
+        # اهمیت
+        layout.addWidget(QLabel("اهمیت"))
+        self.priority_combo = QComboBox()
+        self.priority_combo.addItems(["کم", "متوسط", "زیاد"])
+        layout.addWidget(self.priority_combo)
+
         layout.addWidget(QLabel("Idea ID"))
         self.idea_edit = QLineEdit()
         layout.addWidget(self.idea_edit)
@@ -76,6 +107,11 @@ class ProjectCreateGlobalDialog(QDialog):
         return (
             self.title_edit.text().strip(),
             self.summary_edit.toPlainText().strip(),
+            self.start_time_edit.text().strip(),
+            self.end_time_edit.text().strip(),
+            self.required_hours_edit.text().strip(),
+            self.status_combo.currentText(),
+            self.priority_combo.currentText(),
             self.idea_edit.text().strip(),
         )
 
