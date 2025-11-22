@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,QMenu,
-    QLineEdit, QListWidget, QListWidgetItem, QCheckBox
+    QLineEdit, QListWidget, QListWidgetItem, QCheckBox, QSizePolicy
 )
 from PyQt6.QtCore import Qt, QSize,QDate,pyqtSignal
 from PyQt6.QtGui import QFont,QIcon
@@ -85,7 +85,12 @@ class TodoListPage(QWidget):
 
         self.task_input = QLineEdit()
         self.task_input.setPlaceholderText("Enter the new task...")
-        self.task_input.setFixedHeight(35)
+        self.task_input.setFixedHeight(40)
+        self.task_input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.task_input.setStyleSheet("""
+            padding: 8px 12px;
+            border-radius: 6px;
+        """)
 
         self.task_input.returnPressed.connect(self.quick_add)
         self.input_layout.addWidget(self.task_input)
@@ -93,14 +98,16 @@ class TodoListPage(QWidget):
         add_task_btn = QPushButton()
         add_task_btn.setIcon(QIcon('icons/add.png'))
         add_task_btn.clicked.connect(self.quick_add)
-        add_task_btn.setFixedWidth(70)
+        add_task_btn.setFixedSize(50, 40)
+        add_task_btn.setToolTip("Add task")
         add_task_btn.setStyleSheet(load_stylesheet("styles/home/button_add.qss"))
         self.input_layout.addWidget(add_task_btn)
 
         more_task_btn = QPushButton()
         more_task_btn.setIcon(QIcon('icons/more.png'))
         more_task_btn.clicked.connect(self.tasknew_window)
-        more_task_btn.setFixedWidth(30)
+        more_task_btn.setFixedSize(40, 40)
+        more_task_btn.setToolTip("More options")
         more_task_btn.setStyleSheet(load_stylesheet("styles/home/button_more.qss"))
         self.input_layout.addWidget(more_task_btn)
  
@@ -111,37 +118,82 @@ class TodoListPage(QWidget):
         self.task_list.setStyleSheet(load_stylesheet("styles/home/list.qss"))
         self.task_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.task_list.customContextMenuRequested.connect(self.right_click_menu)
+        self.task_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
     def create_menu_right_click(self):
         """ Create a right-click menu for the task list """
-        dark_menu_style = """
-                    QMenu {
-                        background-color: #2d2d30;
-                        color: white;
-                        border: 1px solid #555;
-                        padding: 5px;
-                        border-radius: 10px;
-                    }
-                    QMenu::item {
-                        background-color: transparent;
-                        padding: 6px 24px;
-                        border-radius: 6px;
-                    }
-                    QMenu::item:selected {
-                        background-color: #0078d7;
-                        color: white;
-                    }
-                    QMenu::separator {
-                        height: 1px;
-                        background: #555;
-                        margin: 5px 10px;
-                    }
-                """
         self.menu_right_click = QMenu()
-        self.menu_right_click.setStyleSheet(dark_menu_style)
         self.showtask_action = self.menu_right_click.addAction("Show Task")
         self.delete_action = self.menu_right_click.addAction("Delete Task")
         self.edite_action = self.menu_right_click.addAction("Edit Task")
+        self.apply_menu_theme()
+    
+    def get_current_theme(self):
+        """Get current theme from config"""
+        import os
+        config_path = "configg/theme_config.txt"
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    theme = f.read().strip() or "روشن"
+                    return theme == "دارک"
+            except Exception:
+                return True  # Default to dark
+        return True  # Default to dark
+    
+    def apply_menu_theme(self):
+        """Apply theme to right-click menu"""
+        is_dark = self.get_current_theme()
+        if is_dark:
+            menu_style = """
+                QMenu {
+                    background-color: #2d2d30;
+                    color: white;
+                    border: 1px solid #555;
+                    padding: 5px;
+                    border-radius: 10px;
+                }
+                QMenu::item {
+                    background-color: transparent;
+                    padding: 6px 24px;
+                    border-radius: 6px;
+                }
+                QMenu::item:selected {
+                    background-color: #0078d7;
+                    color: white;
+                }
+                QMenu::separator {
+                    height: 1px;
+                    background: #555;
+                    margin: 5px 10px;
+                }
+            """
+        else:
+            menu_style = """
+                QMenu {
+                    background-color: #ffffff;
+                    color: #1e1e1e;
+                    border: 1px solid #ddd;
+                    padding: 5px;
+                    border-radius: 10px;
+                }
+                QMenu::item {
+                    background-color: transparent;
+                    padding: 6px 24px;
+                    border-radius: 6px;
+                }
+                QMenu::item:selected {
+                    background-color: #e6f0ff;
+                    color: #1e1e1e;
+                }
+                QMenu::separator {
+                    height: 1px;
+                    background: #ddd;
+                    margin: 5px 10px;
+                }
+            """
+        if hasattr(self, "menu_right_click"):
+            self.menu_right_click.setStyleSheet(menu_style)
 
     
     def right_click_menu(self, position):
@@ -163,7 +215,7 @@ class TodoListPage(QWidget):
         item.setData(Qt.ItemDataRole.UserRole, task)
         checkbox = self.build_checkbox_for_task(task, item)
         self.task_list.addItem(item)
-        item.setSizeHint(checkbox.sizeHint()+ QSize(30, 30)) 
+        item.setSizeHint(checkbox.sizeHint() + QSize(20, 20)) 
         self.task_list.setItemWidget(item, checkbox)
 
 
@@ -198,7 +250,10 @@ class TodoListPage(QWidget):
     def build_checkbox_for_task(self, task: TaskModel, item: QListWidgetItem) -> QCheckBox:
         checkbox = QCheckBox(self.format_task_text(task))
         checkbox.setChecked(task.completed)
-        checkbox.setStyleSheet("padding: 5px;")
+        checkbox.setStyleSheet("""
+            padding: 8px 5px;
+            border-radius: 4px;
+        """)
         checkbox.stateChanged.connect(self.toggle_strike)
         return self.check_task_checkbox_strikeout(checkbox)
     

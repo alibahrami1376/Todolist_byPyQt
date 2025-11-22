@@ -84,15 +84,21 @@ class CustomTitleBar(QFrame):
             pass
 
         if new_theme == "دارک":
+            self.parent.is_dark_theme = True
             self.parent.setStyleSheet(load_stylesheet("styles/dark.qss"))
             self.apply_theme(True)
             if hasattr(self.parent, "sidebar"):
                 self.parent.sidebar.apply_theme(True)
         else:
+            self.parent.is_dark_theme = False
             self.parent.setStyleSheet(load_stylesheet("styles/light.qss"))
             self.apply_theme(False)
             if hasattr(self.parent, "sidebar"):
                 self.parent.sidebar.apply_theme(False)
+        
+        # Update toolbar themes
+        if hasattr(self.parent, "_apply_toolbar_theme"):
+            self.parent._apply_toolbar_theme()
 
     def apply_theme(self, is_dark: bool):
         self.is_dark = is_dark

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal, QDate
 from models.task_models import TaskModel
 from typing import Optional
+import os
 
 from utils.stylesheet_loader import load_stylesheet
 from utils.app_notifier import AppNotifier
@@ -19,18 +20,55 @@ class TaskEditorPage(QDialog):
         self.setWindowTitle("Task Editor")
         self.task= task
         self.flag_edit= False if self.task is None else True
+        self.setMinimumSize(500, 400)
+        self.resize(600, 500)  # Set initial size but allow resize
         self.init_ui()
         self.load_task()
-        self.setStyleSheet("""
-        background-color: #1e1e1e;
-        border-radius: 16px;
-        """)
+        self.apply_theme()
+    
+    def get_current_theme(self):
+        """Get current theme from config"""
+        config_path = "configg/theme_config.txt"
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    theme = f.read().strip() or "روشن"
+                    return theme == "دارک"
+            except Exception:
+                return True  # Default to dark
+        return True  # Default to dark
+    
+    def apply_theme(self):
+        """Apply theme based on current config"""
+        is_dark = self.get_current_theme()
+        if is_dark:
+            self.setStyleSheet("""
+                QDialog {
+                    background-color: #1e1e1e;
+                    border-radius: 16px;
+                    color: white;
+                }
+                QLabel {
+                    color: white;
+                }
+            """)
+        else:
+            self.setStyleSheet("""
+                QDialog {
+                    background-color: #ffffff;
+                    border-radius: 16px;
+                    color: #1e1e1e;
+                }
+                QLabel {
+                    color: #1e1e1e;
+                }
+            """)
 
     def init_ui(self):
         
         layout = QVBoxLayout(self)
-        layout.setSpacing(15)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(18)
+        layout.setContentsMargins(24, 24, 24, 24)
 
         
         # عنوان

@@ -1,6 +1,7 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem, QSizePolicy
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
+import os
 
 from core.session_manager import Session
 from core.session_task import Task_Session
@@ -11,8 +12,8 @@ class DashboardPage(QWidget):
         Session.session_user_set.connect(self.reload_user)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(18)
 
         self.header_label = QLabel("<h2>📋 Dashboard</h2>")
         layout.addWidget(self.header_label)
@@ -26,42 +27,96 @@ class DashboardPage(QWidget):
         self.label_completed = QLabel()
         self.label_pending = QLabel()
         for label in [self.label_total, self.label_completed, self.label_pending]:
-            label.setStyleSheet("background-color: #2d2d30; padding: 10px; border-radius: 10px;")
+            label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
             self.stats_layout.addWidget(label)
         layout.addLayout(self.stats_layout)
 
         # Task preview list
-        layout.addWidget(QLabel("<b>🧾 Recent Tasks:</b>"))
+        self.recent_tasks_label = QLabel("<b>🧾 Recent Tasks:</b>")
+        layout.addWidget(self.recent_tasks_label)
         self.task_list = QListWidget()
-        self.task_list.setStyleSheet("""
-            QListWidget {
-                background-color: #1e1e1e;
-                color: white;
-                border: 1px solid #444;
-                border-radius: 6px;
-            }
-            QListWidget::item {
-                padding: 8px;
-            }
-            QListWidget::item:selected {
-                background-color: #0078d7;
-            }
-        """)
+        self.task_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(self.task_list)
-        layout.addWidget(self.card("Some text"))
+        self.card_widget = self.card("Some text")
+        self.card_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        layout.addWidget(self.card_widget)
 
         layout.addStretch()
+        self.apply_theme()
         self.reload_user()
+    
+    def get_current_theme(self):
+        """Get current theme from config"""
+        config_path = "configg/theme_config.txt"
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    theme = f.read().strip() or "روشن"
+                    return theme == "دارک"
+            except Exception:
+                return True  # Default to dark
+        return True  # Default to dark
+    
+    def apply_theme(self):
+        """Apply theme based on current config"""
+        is_dark = self.get_current_theme()
+        
+        # Apply styles to stat labels
+        if is_dark:
+            stat_style = "background-color: #2d2d30; padding: 10px; border-radius: 10px; color: white;"
+            list_style = """
+                QListWidget {
+                    background-color: #1e1e1e;
+                    color: white;
+                    border: 1px solid #444;
+                    border-radius: 6px;
+                }
+                QListWidget::item {
+                    padding: 8px;
+                }
+                QListWidget::item:selected {
+                    background-color: #0078d7;
+                }
+            """
+            card_style = """
+                background-color: #2d2d30;
+                padding: 15px;
+                border-radius: 10px;
+                color: white;
+            """
+        else:
+            stat_style = "background-color: #f1f1f1; padding: 10px; border-radius: 10px; color: #1e1e1e;"
+            list_style = """
+                QListWidget {
+                    background-color: #ffffff;
+                    color: #1e1e1e;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                }
+                QListWidget::item {
+                    padding: 8px;
+                }
+                QListWidget::item:selected {
+                    background-color: #e6f0ff;
+                }
+            """
+            card_style = """
+                background-color: #f1f1f1;
+                padding: 15px;
+                border-radius: 10px;
+                color: #1e1e1e;
+            """
+        
+        for label in [self.label_total, self.label_completed, self.label_pending]:
+            label.setStyleSheet(stat_style)
+        
+        self.task_list.setStyleSheet(list_style)
+        if hasattr(self, "card_widget"):
+            self.card_widget.setStyleSheet(card_style)
 
     def card(self, text):
         label = QLabel(text)
         label.setWordWrap(True)
-        label.setStyleSheet("""
-            background-color: #2d2d30;
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-        """)
         return label
 
     def reload_user(self):

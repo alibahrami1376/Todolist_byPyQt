@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, Qt, QPoint
 from PyQt6.QtGui import QMouseEvent, QColor, QFont
+import os
 
 from utils.app_notifier import AppNotifier
 
@@ -13,12 +14,43 @@ class RegisterPage(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedSize(420, 500)
+        self.setMinimumSize(400, 500)
+        self.resize(450, 550)  # Set initial size but allow resize
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.old_pos = None
-        self.setStyleSheet(self.load_styles())
         self.init_ui()
+        self.apply_theme()
+    
+    def get_current_theme(self):
+        """Get current theme from config"""
+        config_path = "configg/theme_config.txt"
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    theme = f.read().strip() or "روشن"
+                    return theme == "دارک"
+            except Exception:
+                return True  # Default to dark
+        return True  # Default to dark
+    
+    def apply_theme(self):
+        """Apply theme based on current config"""
+        is_dark = self.get_current_theme()
+        self.setStyleSheet(self.load_styles(is_dark))
+        if hasattr(self, "container_frame"):
+            if is_dark:
+                self.container_frame.setStyleSheet("background-color: #1e1e1e; border-radius: 16px;")
+                if hasattr(self, "title_label"):
+                    self.title_label.setStyleSheet("color: #BB86FC;")
+                if hasattr(self, "close_btn"):
+                    self.close_btn.setStyleSheet("background-color: transparent; color: white; border: none; font-size: 16px;")
+            else:
+                self.container_frame.setStyleSheet("background-color: #ffffff; border-radius: 16px; border: 1px solid #ddd;")
+                if hasattr(self, "title_label"):
+                    self.title_label.setStyleSheet("color: #2b59c3;")
+                if hasattr(self, "close_btn"):
+                    self.close_btn.setStyleSheet("background-color: transparent; color: #1e1e1e; border: none; font-size: 16px;")
         
         
 
@@ -26,24 +58,21 @@ class RegisterPage(QDialog):
         outer_layout = QVBoxLayout(self)
         outer_layout.setContentsMargins(0, 0, 0, 0)
 
-        container_frame = QFrame()
-        container_frame.setStyleSheet("background-color: #1e1e1e; border-radius: 16px;")
-        container_layout = QVBoxLayout(container_frame)
+        self.container_frame = QFrame()
+        container_layout = QVBoxLayout(self.container_frame)
         container_layout.setContentsMargins(40, 30, 40, 20)
         container_layout.setSpacing(20)
 
         # Title Bar
         title_bar = QHBoxLayout()
-        title = QLabel("Create Account")
-        title.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-        title.setStyleSheet("color: #BB86FC;")
-        close_btn = QPushButton("✕")
-        close_btn.setFixedSize(30, 30)
-        close_btn.setStyleSheet("background-color: transparent; color: white; border: none; font-size: 16px;")
-        close_btn.clicked.connect(self.close)
-        title_bar.addWidget(title)
+        self.title_label = QLabel("Create Account")
+        self.title_label.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
+        self.close_btn = QPushButton("✕")
+        self.close_btn.setFixedSize(30, 30)
+        self.close_btn.clicked.connect(self.close)
+        title_bar.addWidget(self.title_label)
         title_bar.addStretch()
-        title_bar.addWidget(close_btn)
+        title_bar.addWidget(self.close_btn)
         container_layout.addLayout(title_bar)
 
         # Form Fields
@@ -84,7 +113,7 @@ class RegisterPage(QDialog):
         container_layout.addWidget(submit_btn)
 
         container_layout.addStretch()
-        outer_layout.addWidget(container_frame)
+        outer_layout.addWidget(self.container_frame)
 
     def handle_submit(self):
         data = {
@@ -112,35 +141,71 @@ class RegisterPage(QDialog):
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.old_pos = event.globalPosition().toPoint()
 
-    def load_styles(self):
-        return """
-        QLineEdit {
-            background-color: #2C2C2C;
-            border: 2px solid #3E3E3E;
-            border-radius: 20px;
-            padding: 12px;
-            color: #FFFFFF;
-            font-size: 15px;
-        }
-        QLineEdit:focus {
-            border: 2px solid #BB86FC;
-            background-color: #1F1F1F;
-        }
-        QPushButton {
-            background-color: #BB86FC;
-            border-radius: 20px;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            padding: 10px;
-        }
-        QPushButton:hover {
-            background-color: #9B6DFF;
-        }
-        QPushButton:pressed {
-            background-color: #7F39FB;
-        }
-        """
+    def load_styles(self, is_dark=True):
+        if is_dark:
+            return """
+            QLineEdit {
+                background-color: #2C2C2C;
+                border: 2px solid #3E3E3E;
+                border-radius: 20px;
+                padding: 12px;
+                color: #FFFFFF;
+                font-size: 15px;
+            }
+            QLineEdit:focus {
+                border: 2px solid #BB86FC;
+                background-color: #1F1F1F;
+            }
+            QPushButton {
+                background-color: #BB86FC;
+                border-radius: 20px;
+                color: white;
+                font-size: 15px;
+                font-weight: bold;
+                padding: 10px;
+            }
+            QPushButton:hover {
+                background-color: #9B6DFF;
+            }
+            QPushButton:pressed {
+                background-color: #7F39FB;
+            }
+            QLabel {
+                color: #BB86FC;
+            }
+            """
+        else:
+            return """
+            QLineEdit {
+                background-color: #f6f6f6;
+                border: 2px solid #cfcfcf;
+                border-radius: 20px;
+                padding: 12px;
+                color: #1e1e1e;
+                font-size: 15px;
+            }
+            QLineEdit:focus {
+                border: 2px solid #2b59c3;
+                background-color: #ffffff;
+            }
+            QPushButton {
+                background-color: #2b59c3;
+                border-radius: 20px;
+                color: white;
+                font-size: 15px;
+                font-weight: bold;
+                padding: 10px;
+            }
+            QPushButton:hover {
+                background-color: #1e4a9e;
+            }
+            QPushButton:pressed {
+                background-color: #153d7a;
+            }
+            QLabel {
+                color: #2b59c3;
+            }
+            """
 
 
 
