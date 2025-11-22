@@ -12,7 +12,7 @@ class CategoryEntity(Base):
     name: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
     description: Mapped[str] = mapped_column(String(2000), default="")
 
-    ideas: Mapped[list["IdeaEntity"]] = relationship(back_populates="category", cascade="all, delete-orphan")
+    ideas: Mapped[list["IdeaEntity"]] = relationship(back_populates="category_relation", cascade="all, delete-orphan")
     questions: Mapped[list["QuestionEntity"]] = relationship(back_populates="category", cascade="all, delete-orphan")
 
 

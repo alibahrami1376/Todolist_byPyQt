@@ -23,9 +23,21 @@ class IdeaService:
                 for r in rows
             ]
 
-    def add_idea(self, id_value: str, title: str, summary: str, goal: str) -> None:
+    def add_idea(self, id_value: str, title: str, summary: str = "", goal: str = "", 
+                 description: str = "", category: str = "", tags: str = "", 
+                 priority: str = "medium", score: int = 0) -> None:
         with get_session() as db:
-            idea = IdeaEntity(id=id_value, title=title, summary=summary, goal=goal)
+            idea = IdeaEntity(
+                id=id_value, 
+                title=title, 
+                summary=summary, 
+                goal=goal,
+                description=description,
+                category=category,
+                tags=tags,
+                priority=priority,
+                score=score
+            )
             db.add(idea)
             db.commit()
 

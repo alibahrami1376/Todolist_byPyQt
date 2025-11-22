@@ -54,6 +54,7 @@ class IdeaEditorDialog(QDialog):
     def __init__(self, service: IdeaService):
         super().__init__()
         self.setWindowTitle("ایده جدید")
+        self.setMinimumSize(500, 600)
         self.service = service
         self.saved = False
 
@@ -61,18 +62,48 @@ class IdeaEditorDialog(QDialog):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(10)
 
-        self.input_title = QLabel("عنوان ایده")
-        layout.addWidget(self.input_title)
-        from PyQt6.QtWidgets import QLineEdit
+        from PyQt6.QtWidgets import QLineEdit, QComboBox, QSpinBox
+        from PyQt6.QtCore import QSize
+        
+        layout.addWidget(QLabel("عنوان ایده *"))
         self.title_line = QLineEdit()
         layout.addWidget(self.title_line)
 
-        layout.addWidget(QLabel("خلاصه"))
+        layout.addWidget(QLabel("توضیحات"))
+        self.description_edit = QTextEdit()
+        self.description_edit.setMaximumHeight(100)
+        layout.addWidget(self.description_edit)
+
+        layout.addWidget(QLabel("دسته‌بندی"))
+        self.category_edit = QLineEdit()
+        layout.addWidget(self.category_edit)
+
+        layout.addWidget(QLabel("تگ‌ها (با کاما جدا کنید)"))
+        self.tags_edit = QLineEdit()
+        self.tags_edit.setPlaceholderText("مثال: python, web, api")
+        layout.addWidget(self.tags_edit)
+
+        layout.addWidget(QLabel("اولویت"))
+        self.priority_combo = QComboBox()
+        self.priority_combo.addItems(["low", "medium", "high"])
+        self.priority_combo.setCurrentText("medium")
+        layout.addWidget(self.priority_combo)
+
+        layout.addWidget(QLabel("امتیاز (0-100)"))
+        self.score_spin = QSpinBox()
+        self.score_spin.setRange(0, 100)
+        self.score_spin.setValue(0)
+        layout.addWidget(self.score_spin)
+
+        # Keep old fields for backward compatibility
+        layout.addWidget(QLabel("خلاصه (اختیاری)"))
         self.summary_edit = QTextEdit()
+        self.summary_edit.setMaximumHeight(80)
         layout.addWidget(self.summary_edit)
 
-        layout.addWidget(QLabel("هدف"))
+        layout.addWidget(QLabel("هدف (اختیاری)"))
         self.goal_edit = QTextEdit()
+        self.goal_edit.setMaximumHeight(80)
         layout.addWidget(self.goal_edit)
 
         btns = QHBoxLayout()
@@ -86,13 +117,30 @@ class IdeaEditorDialog(QDialog):
 
     def _save(self):
         title = self.title_line.text().strip()
+        description = self.description_edit.toPlainText().strip()
+        category = self.category_edit.text().strip()
+        tags = self.tags_edit.text().strip()
+        priority = self.priority_combo.currentText()
+        score = self.score_spin.value()
         summary = self.summary_edit.toPlainText().strip()
         goal = self.goal_edit.toPlainText().strip()
+        
         if not title:
             AppNotifier(QWidget).warning("خطا", "عنوان ایده الزامی است")
             return
+        
         idea_id = uuid.uuid4().hex
-        self.service.add_idea(idea_id, title, summary, goal)
+        self.service.add_idea(
+            idea_id, 
+            title, 
+            summary, 
+            goal,
+            description=description,
+            category=category,
+            tags=tags,
+            priority=priority,
+            score=score
+        )
         self.saved = True
         self.accept()
 

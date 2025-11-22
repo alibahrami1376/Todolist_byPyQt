@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QFrame
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt, QPoint, QSize
 import os
+import math
 from utils.stylesheet_loader import load_stylesheet
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QPainter, QPen, QBrush, QColor, QPixmap
 
 class CustomTitleBar(QFrame):
     def __init__(self, parent=None):
@@ -28,23 +29,35 @@ class CustomTitleBar(QFrame):
         layout.addStretch()
 
         # Minimize button
-        self.minimize_btn = QPushButton("–")
-        self.minimize_btn.setFixedSize(20, 20)
+        self.minimize_btn = QPushButton()
+        self.minimize_btn.setIcon(self._create_minimize_icon())
+        self.minimize_btn.setIconSize(QSize(16, 16))
+        self.minimize_btn.setFixedSize(32, 32)
+        self.minimize_btn.setToolTip("Minimize")
         self.minimize_btn.clicked.connect(self.minimize_window)
 
         # Close button
-        self.close_btn = QPushButton("×")
-        self.close_btn.setFixedSize(20, 20)
+        self.close_btn = QPushButton()
+        self.close_btn.setIcon(self._create_close_icon())
+        self.close_btn.setIconSize(QSize(16, 16))
+        self.close_btn.setFixedSize(32, 32)
+        self.close_btn.setToolTip("Close")
         self.close_btn.clicked.connect(self.close_window)
 
         # Sidebar toggle button
-        self.sidebar_btn = QPushButton("≡")
-        self.sidebar_btn.setFixedSize(24, 24)
+        self.sidebar_btn = QPushButton()
+        self.sidebar_btn.setIcon(self._create_menu_icon())
+        self.sidebar_btn.setIconSize(QSize(18, 18))
+        self.sidebar_btn.setFixedSize(32, 32)
+        self.sidebar_btn.setToolTip("Toggle Sidebar")
         self.sidebar_btn.clicked.connect(self.toggle_sidebar)
 
         # Theme toggle button
-        self.theme_btn = QPushButton("☼")
-        self.theme_btn.setFixedSize(24, 24)
+        self.theme_btn = QPushButton()
+        self.theme_btn.setIcon(self._create_theme_icon())
+        self.theme_btn.setIconSize(QSize(18, 18))
+        self.theme_btn.setFixedSize(32, 32)
+        self.theme_btn.setToolTip("Toggle Theme")
         self.theme_btn.clicked.connect(self.toggle_theme)
 
         for btn in [self.sidebar_btn, self.theme_btn, self.minimize_btn, self.close_btn]:
@@ -110,6 +123,11 @@ class CustomTitleBar(QFrame):
             self.title_label.setStyleSheet("font-weight: bold; color: #1e1e1e;")
         for btn in [self.sidebar_btn, self.theme_btn, self.minimize_btn, self.close_btn]:
             btn.setStyleSheet(self.button_style(is_dark))
+        # Update icons with new theme colors
+        self.minimize_btn.setIcon(self._create_minimize_icon())
+        self.close_btn.setIcon(self._create_close_icon())
+        self.sidebar_btn.setIcon(self._create_menu_icon())
+        self.theme_btn.setIcon(self._create_theme_icon())
 
     def button_style(self, is_dark: bool) -> str:
         if is_dark:
@@ -151,3 +169,81 @@ class CustomTitleBar(QFrame):
         delta = event.globalPosition().toPoint() - self.old_pos
         self.parent.move(self.parent.x() + delta.x(), self.parent.y() + delta.y())
         self.old_pos = event.globalPosition().toPoint()
+    
+    def _create_minimize_icon(self) -> QIcon:
+        """Create minimize icon"""
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = QColor("white") if self.is_dark else QColor("#1e1e1e")
+        pen = QPen(color, 2)
+        painter.setPen(pen)
+        # Draw horizontal line
+        painter.drawLine(4, 8, 12, 8)
+        painter.end()
+        return QIcon(pixmap)
+    
+    def _create_close_icon(self) -> QIcon:
+        """Create close (X) icon"""
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = QColor("white") if self.is_dark else QColor("#1e1e1e")
+        pen = QPen(color, 2)
+        painter.setPen(pen)
+        # Draw X
+        painter.drawLine(5, 5, 11, 11)
+        painter.drawLine(11, 5, 5, 11)
+        painter.end()
+        return QIcon(pixmap)
+    
+    def _create_menu_icon(self) -> QIcon:
+        """Create menu/hamburger icon"""
+        pixmap = QPixmap(18, 18)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = QColor("white") if self.is_dark else QColor("#1e1e1e")
+        pen = QPen(color, 2)
+        painter.setPen(pen)
+        # Draw three horizontal lines
+        painter.drawLine(4, 5, 14, 5)
+        painter.drawLine(4, 9, 14, 9)
+        painter.drawLine(4, 13, 14, 13)
+        painter.end()
+        return QIcon(pixmap)
+    
+    def _create_theme_icon(self) -> QIcon:
+        """Create theme toggle icon (sun/moon)"""
+        pixmap = QPixmap(18, 18)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = QColor("white") if self.is_dark else QColor("#1e1e1e")
+        pen = QPen(color, 1.5)
+        painter.setPen(pen)
+        
+        if self.is_dark:
+            # Draw moon icon for dark theme
+            painter.drawArc(6, 4, 8, 8, 45 * 16, 180 * 16)
+            painter.drawArc(8, 6, 6, 6, 45 * 16, 180 * 16)
+        else:
+            # Draw sun icon for light theme
+            center_x, center_y = 9, 9
+            radius = 5
+            # Draw circle
+            painter.drawEllipse(center_x - radius, center_y - radius, radius * 2, radius * 2)
+            # Draw rays
+            for i in range(8):
+                angle = i * 45
+                rad = math.radians(angle)
+                x1 = center_x + (radius + 2) * math.cos(rad)
+                y1 = center_y + (radius + 2) * math.sin(rad)
+                x2 = center_x + (radius + 4) * math.cos(rad)
+                y2 = center_y + (radius + 4) * math.sin(rad)
+                painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+        
+        painter.end()
+        return QIcon(pixmap)

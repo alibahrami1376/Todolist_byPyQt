@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QHBoxLayout, QToolButton, QLabel, QToolBar, QSizePolicy, QScrollArea
 from PyQt6.QtCore import Qt, pyqtSignal, QSize, QPoint
-from PyQt6.QtGui import QMouseEvent
+from PyQt6.QtGui import QMouseEvent, QCursor
 import os
 
 
@@ -16,6 +16,10 @@ class MainFramelessWindow(QWidget):
     handle_exit= pyqtSignal()
     def __init__(self):
         super().__init__()
+        # Initialize resize state variables early to avoid AttributeError
+        self._resize_start_pos = None
+        self._resize_direction = 0
+        
         self.notifier = AppNotifier(self)
         self.notifier.set_parent(self)
         # نوار منو (هدر)
@@ -287,6 +291,53 @@ class MainFramelessWindow(QWidget):
         else:
             event.ignore()
     
+    def _get_resize_direction(self, pos: QPoint) -> int:
+        """Get resize direction based on mouse position"""
+        edge_margin = 5
+        width = self.width()
+        height = self.height()
+        
+        direction = 0
+        if pos.x() <= edge_margin:
+            direction |= 1  # Left
+        if pos.x() >= width - edge_margin:
+            direction |= 2  # Right
+        if pos.y() <= edge_margin:
+            direction |= 4  # Top
+        if pos.y() >= height - edge_margin:
+            direction |= 8  # Bottom
+        
+        return direction
+    
+    def _update_cursor(self, pos: QPoint):
+        """Update cursor based on mouse position - optimized to avoid unnecessary updates"""
+        # Don't change cursor if over title bar
+        if hasattr(self, 'title_bar') and self.title_bar.geometry().contains(pos):
+            current_cursor = self.cursor().shape()
+            if current_cursor != Qt.CursorShape.ArrowCursor:
+                self.setCursor(Qt.CursorShape.ArrowCursor)
+            return
+        
+        direction = self._get_resize_direction(pos)
+        
+        # Map direction to cursor shape
+        cursor_map = {
+            0: Qt.CursorShape.ArrowCursor,
+            1: Qt.CursorShape.SizeHorCursor,  # Left
+            2: Qt.CursorShape.SizeHorCursor,  # Right
+            4: Qt.CursorShape.SizeVerCursor,  # Top
+            5: Qt.CursorShape.SizeFDiagCursor,  # Top-Left
+            6: Qt.CursorShape.SizeBDiagCursor,  # Top-Right
+            8: Qt.CursorShape.SizeVerCursor,  # Bottom
+            9: Qt.CursorShape.SizeBDiagCursor,  # Bottom-Left
+            10: Qt.CursorShape.SizeFDiagCursor,  # Bottom-Right
+        }
+        
+        new_cursor = cursor_map.get(direction, Qt.CursorShape.ArrowCursor)
+        current_cursor = self.cursor().shape()
+        if current_cursor != new_cursor:
+            self.setCursor(new_cursor)
+    
     def mousePressEvent(self, event: QMouseEvent):
         """Handle mouse press for window resizing"""
         # Don't interfere with title bar dragging
@@ -296,29 +347,24 @@ class MainFramelessWindow(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self._resize_start_pos = event.globalPosition().toPoint()
             self._resize_start_geometry = self.geometry()
-            # Check if mouse is near edges for resizing
-            edge_margin = 5
-            pos = event.position().toPoint()
-            width = self.width()
-            height = self.height()
-            
-            # Determine resize direction
-            self._resize_direction = 0
-            if pos.x() <= edge_margin:
-                self._resize_direction |= 1  # Left
-            if pos.x() >= width - edge_margin:
-                self._resize_direction |= 2  # Right
-            if pos.y() <= edge_margin:
-                self._resize_direction |= 4  # Top
-            if pos.y() >= height - edge_margin:
-                self._resize_direction |= 8  # Bottom
+            # Get resize direction
+            self._resize_direction = self._get_resize_direction(event.position().toPoint())
     
     def mouseMoveEvent(self, event: QMouseEvent):
         """Handle mouse move for window resizing"""
-        if not hasattr(self, '_resize_start_pos') or self._resize_start_pos is None:
+        pos = event.position().toPoint()
+        
+        # Check if we're currently resizing
+        is_resizing = self._resize_start_pos is not None
+        
+        # Update cursor if not resizing
+        if not is_resizing:
+            self._update_cursor(pos)
             return
         
-        if not hasattr(self, '_resize_direction') or self._resize_direction == 0:
+        # Handle resizing
+        if self._resize_direction == 0:
+            self._update_cursor(pos)
             return
         
         current_pos = event.globalPosition().toPoint()
@@ -358,12 +404,12 @@ class MainFramelessWindow(QWidget):
     
     def mouseReleaseEvent(self, event: QMouseEvent):
         """Reset resize state on mouse release"""
-        if hasattr(self, '_resize_start_pos'):
-            self._resize_start_pos = None
-        if hasattr(self, '_resize_direction'):
-            self._resize_direction = 0
+        self._resize_start_pos = None
+        self._resize_direction = 0
+        # Update cursor after release
+        self._update_cursor(event.position().toPoint())
     
-    def changeEvent(self, event):
-        """Update cursor when entering/leaving resize areas"""
-        super().changeEvent(event)
-        # This will be handled by checking cursor position in real-time
+    def leaveEvent(self, event):
+        """Reset cursor when mouse leaves window"""
+        self.setCursor(Qt.CursorShape.ArrowCursor)
+        super().leaveEvent(event)
