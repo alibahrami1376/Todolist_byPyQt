@@ -57,3 +57,15 @@ class ProjectStepService:
                 obj.status = status
                 db.commit()
 
+    def reorder(self, project_id: str, ordered_ids: List[str]) -> None:
+        with get_session() as db:
+            steps = db.scalars(
+                select(ProjectStepEntity).where(ProjectStepEntity.project_id == project_id)
+            ).all()
+            step_map = {step.id: step for step in steps}
+            for order_index, step_id in enumerate(ordered_ids, start=1):
+                step = step_map.get(step_id)
+                if step:
+                    step.order = order_index
+            db.commit()
+

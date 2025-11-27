@@ -1,13 +1,20 @@
-
-
-
 QListWidget {
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 16px;
-    }
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 15px;
+    background-color: #141823;
+    border: 1px solid #262b3c;
+}
+
 QListWidget::item {
-    padding: 8px;
-    margin: 3px;
-    border-radius: 5px;
-    }
+    padding: 10px;
+    margin: 6px 4px;
+    border-radius: 10px;
+    background-color: #1f2430;
+    color: #dcdfe4;
+}
+
+QListWidget::item:selected {
+    background-color: rgba(86, 156, 214, 0.25);
+    color: #ffffff;
+}

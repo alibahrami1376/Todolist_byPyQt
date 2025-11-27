@@ -162,23 +162,29 @@ class MainFramelessWindow(QWidget):
     def _apply_toolbar_theme(self):
         """Apply theme to toolbar buttons and bottom toolbar"""
         if self.is_dark_theme:
-            # Dark theme styles
+            # Dark theme styles inspired by VS Code
             toolbar_button_style = """
                 QToolButton {
-                    background-color: #444444;
-                    color: white;
-                    border-radius: 5px;
-                    padding: 4px 10px;
+                    background-color: #252526;
+                    color: #d7dae0;
+                    border-radius: 8px;
+                    padding: 4px 12px;
+                    border: 1px solid #3c3c3c;
                 }
                 QToolButton:hover {
-                    background-color: #555555;
+                    background-color: #2f2f37;
+                    border-color: #569cd6;
                 }
                 QToolButton:pressed {
-                    background-color: #666666;
+                    background-color: #0e639c;
+                    border-color: #0e639c;
+                    color: #ffffff;
                 }
             """
-            bottom_toolbar_style = "QToolBar { background-color: #2d2d30; color: white; border: none; }"
-            label_color = "color: white;"
+            bottom_toolbar_style = (
+                "QToolBar { background-color: #1b1f2b; color: #d7dae0; border-top: 1px solid #262b3c; }"
+            )
+            label_color = "color: #cfd6e5;"
         else:
             # Light theme styles
             toolbar_button_style = """

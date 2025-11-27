@@ -1,6 +1,6 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 from sqlalchemy import select
-from datetime import date
+from datetime import date, datetime
 
 from services.db_session import get_session
 from models.db.project_entity import ProjectEntity
@@ -56,5 +56,27 @@ class ProjectService:
             if obj:
                 db.delete(obj)
                 db.commit()
+
+    def update(self, project_id: str, data: Dict[str, Any]) -> bool:
+        allowed_fields = {
+            "title",
+            "description",
+            "summary",
+            "tech_stack",
+            "progress",
+            "status",
+            "start_date",
+            "end_date",
+        }
+        with get_session() as db:
+            project = db.get(ProjectEntity, project_id)
+            if not project:
+                return False
+            for field, value in data.items():
+                if field in allowed_fields and value is not None:
+                    setattr(project, field, value)
+            project.updated_at = datetime.utcnow()
+            db.commit()
+            return True
 
 
