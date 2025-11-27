@@ -38,7 +38,6 @@ QPlainTextEdit:focus,
 QSpinBox:focus,
 QComboBox:focus {
     border: 1px solid #569cd6;
-    box-shadow: 0px 0px 6px rgba(86, 156, 214, 0.45);
 }
 
 QComboBox QAbstractItemView {

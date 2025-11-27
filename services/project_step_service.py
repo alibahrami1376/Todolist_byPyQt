@@ -57,6 +57,23 @@ class ProjectStepService:
                 obj.status = status
                 db.commit()
 
+    def update(self, step_id: str, title: str = None, description: str = None, 
+               status: str = None, order: int = None) -> bool:
+        with get_session() as db:
+            obj = db.get(ProjectStepEntity, step_id)
+            if not obj:
+                return False
+            if title is not None:
+                obj.title = title
+            if description is not None:
+                obj.description = description
+            if status is not None:
+                obj.status = status
+            if order is not None:
+                obj.order = order
+            db.commit()
+            return True
+
     def reorder(self, project_id: str, ordered_ids: List[str]) -> None:
         with get_session() as db:
             steps = db.scalars(
