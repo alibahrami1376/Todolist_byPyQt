@@ -40,5 +40,6 @@ def init_db() -> None:
     from models.db.answer_entity import AnswerEntity  # noqa: F401
     from models.db.insight_entity import InsightEntity  # noqa: F401
     from models.db.project_step_entity import ProjectStepEntity  # noqa: F401
+    from models.db.habit_entity import HabitEntity, HabitLogEntity, HabitStatsEntity  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

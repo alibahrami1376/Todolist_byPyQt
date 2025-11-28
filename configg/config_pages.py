@@ -19,14 +19,21 @@ class ConfigPages:
             page_editore=self.pages.edit_task,
             page_manager=self.window
         ) 
-    def add_page(self):             
+    def add_page(self):
+        # ایجاد صفحه MoreFeatures با page_manager
+        from views.pages.more_features_page import MoreFeaturesPage
+        self.pages.more_features = MoreFeaturesPage(page_manager=self.window)
+             
         self.window.add_page(self.pages.dash,"Dashboard")
         self.window.add_page(self.pages.calendar,"Calendar")
         self.window.add_page(self.pages.settings, "Settings")
         self.window.add_page(self.pages.login, "Login")
         self.window.add_page(self.pages.about, "About")
         self.window.add_page(self.pages.journal, "Journal")
-        self.window.add_page(self.pages.timer, "Timer")
+        self.window.add_page(self.pages.timer, "Timer")  # Timer هنوز برای دسترسی مستقیم موجود است
+        self.window.add_page(self.pages.calculator, "Calculator")  # ماشین حساب
+        self.window.add_page(self.pages.checklist, "Checklist")  # چک‌لیست عادت‌ها
+        self.window.add_page(self.pages.more_features, "MoreFeatures")  # صفحه جدید امکانات بیشتر
         self.window.add_page(self.pages.todo, "TodoList")
         self.window.add_page(self.pages.userdash,"usdash")
         self.window.add_page(self.pages.fields, "Fields")

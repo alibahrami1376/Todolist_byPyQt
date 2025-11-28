@@ -16,6 +16,7 @@ from models.db.category_entity import CategoryEntity
 from models.db.question_entity import QuestionEntity
 from models.db.answer_entity import AnswerEntity
 from models.db.insight_entity import InsightEntity
+from models.db.habit_entity import HabitEntity, HabitLogEntity, HabitStatsEntity  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

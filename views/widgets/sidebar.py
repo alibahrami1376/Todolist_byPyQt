@@ -46,17 +46,13 @@ class Sidebar(QFrame):
 
         self.sections = [
             ("Dashboard", "dashboard.png"),
-            ("Calendar", "calendar.png"),
-            ("Journal", "journal.png"),
-            ("Timer", "timer.png"),
-            ("TodoList", "todolist.png"),
-            ("Settings", "settings.png"),
-            ("Login", "login.png"),
-            ("About", "about.png"),
-            ("Fields", "add.png"),
-            ("Ideas", "add.png"),
             ("Projects", "task.png"),
-            ("LearningPaths", "stopwatch.png"),
+            ("Checklist", "task.png"),  # چک‌لیست عادت‌ها
+            ("MoreFeatures", "more.png"), 
+            ("Ideas", "add.png"),
+            ("Login", "login.png"),
+            ("Settings", "settings.png"),
+            ("About", "about.png"),
         ]
 
         for name, icon in self.sections:

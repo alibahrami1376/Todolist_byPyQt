@@ -13,6 +13,7 @@ from views.pages.theme_settings_page import ThemeSettingsPage
 from utils.stylesheet_loader import load_stylesheet
 
 class MainFramelessWindow(QWidget):
+    
     handle_exit= pyqtSignal()
     def __init__(self):
         super().__init__()
@@ -45,10 +46,15 @@ class MainFramelessWindow(QWidget):
         self.top_toolbar.setStyleSheet("QToolBar { background: none; border: none; padding: 0px; }")
         # افزودن دکمه‌ها به نوار بالایی و دکمه جمع‌کننده نوار بغل
         self._add_top_toolbar_actions()
-        self._add_sidebar_handle_to_toolbar()
+        self._add_bottom_toolbar()
+
     def _add_sidebar_handle_to_toolbar(self):
+        # این تابع در حال حاضر خالی است چون دکمه sidebar_handle
+        # در _add_top_toolbar_actions() ساخته می‌شود
+        # می‌توانید این تابع را حذف کنید یا کدهای مرتبط را اینجا منتقل کنید
+        pass
 
-
+    def _add_bottom_toolbar(self):
         # ساخت نوار ابزار پایینی
         self.bottom_toolbar = QToolBar("Bottom Toolbar", self)
         self.bottom_toolbar.setIconSize(QSize(18, 18))
@@ -58,6 +64,7 @@ class MainFramelessWindow(QWidget):
 
         # ...existing code...
         self.init_ui()
+
     def _add_top_toolbar_actions(self):
         from PyQt6.QtGui import QIcon
         from PyQt6.QtWidgets import QToolButton, QWidget, QHBoxLayout, QSizePolicy
@@ -95,9 +102,16 @@ class MainFramelessWindow(QWidget):
         sep.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         layout.addWidget(sep)
 
-        # دکمه جمع‌کننده نوار بغل (≡)
+        # دکمه جمع‌کننده نوار بغل
         self.sidebar_handle = QToolButton()
-        self.sidebar_handle.setText("≡")
+        # استفاده از آیکون به جای متن
+        sidebar_icon_path = icon_path("more.png")
+        if os.path.exists(sidebar_icon_path):
+            self.sidebar_handle.setIcon(QIcon(sidebar_icon_path))
+        else:
+            # اگر آیکون موجود نبود، از متن استفاده می‌شود
+            self.sidebar_handle.setText("≡")
+        self.sidebar_handle.setIconSize(QSize(18, 18))
         self.sidebar_handle.setFixedWidth(28)
         self.sidebar_handle.setToolTip("نمایش/مخفی کردن نوار بغل")
         self.sidebar_handle.clicked.connect(self.toggle_sidebar)
@@ -124,7 +138,7 @@ class MainFramelessWindow(QWidget):
         self.msg_icon.setStyleSheet("background: transparent; margin-left: 16px;")
         self.msg_icon.setToolTip("پیام‌ها")
         self.bottom_toolbar.addWidget(self.msg_icon)
-    # افزودن صفحه تنظیمات تم
+     # افزودن صفحه تنظیمات تم
         self.theme_settings_page = ThemeSettingsPage(main_window=self)
         self.add_page(self.theme_settings_page, "تنظیمات تم")
 
@@ -212,7 +226,11 @@ class MainFramelessWindow(QWidget):
         if hasattr(self, "btn_update"):
             self.btn_update.setStyleSheet(toolbar_button_style)
         if hasattr(self, "sidebar_handle"):
-            self.sidebar_handle.setStyleSheet(toolbar_button_style + " font-size: 18px;")
+            # اگر آیکون دارد، استایل عادی را اعمال کن، در غیر این صورت فونت بزرگتر برای متن
+            if self.sidebar_handle.icon().isNull():
+                self.sidebar_handle.setStyleSheet(toolbar_button_style + " font-size: 18px;")
+            else:
+                self.sidebar_handle.setStyleSheet(toolbar_button_style)
         
         # Apply to bottom toolbar
         if hasattr(self, "bottom_toolbar"):
@@ -244,6 +262,10 @@ class MainFramelessWindow(QWidget):
         self.sidebar.switch_requested.connect(self.switch_page)
         self.sidebar.request_hide.connect(self.toggle_sidebar)
         content_layout.addWidget(self.sidebar)
+        
+        # تنظیم وضعیت اولیه: sidebar نمایش داده می‌شود، پس handle مخفی است
+        if hasattr(self, "sidebar_handle"):
+            self.sidebar_handle.setVisible(False)
 
         # Wrap stack in scroll area for responsive pages
         scroll_area = QScrollArea()
@@ -264,12 +286,10 @@ class MainFramelessWindow(QWidget):
         self.pages[name.lower()] = widget
         self.stack.addWidget(widget)
 
-
     def change_page(self,widget_new: QWidget,name: str): 
         self.pages[name.lower()]= widget_new
         self.stack.addWidget(widget_new)
         self.stack.setCurrentWidget(widget_new)
-
 
     def switch_page(self, name: str):
         if name.lower() in self.pages:
@@ -281,9 +301,13 @@ class MainFramelessWindow(QWidget):
         if not hasattr(self, "sidebar"):
             return
         self.sidebar_hidden = not self.sidebar_hidden
+        # اگر sidebar مخفی است، آن را مخفی کن و دکمه handle را نمایش بده
+        # اگر sidebar نمایش داده می‌شود، آن را نمایش بده و دکمه handle را مخفی کن
         self.sidebar.setVisible(not self.sidebar_hidden)
         if hasattr(self, "sidebar_handle"):
+            # دکمه handle فقط زمانی نمایش داده می‌شود که sidebar مخفی باشد
             self.sidebar_handle.setVisible(self.sidebar_hidden)
+
     def closeEvent(self, event):
         if AppNotifier(QWidget).confirm(
             "Exit Confirmation",

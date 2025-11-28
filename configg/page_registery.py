@@ -20,6 +20,9 @@ from views.pages.field_four_page import FieldFourPage
 from views.pages.ideas_page import IdeasPage
 from views.pages.projects_page import ProjectsPage
 from views.pages.learning_paths_page import LearningPathsPage
+from views.pages.more_features_page import MoreFeaturesPage
+from views.pages.calculator_page import CalculatorPage
+from views.pages.checklist_page import ChecklistPage
 from typing import Optional
 from models.task_models import TaskModel
 
@@ -44,6 +47,9 @@ class PageRegistry:
         self.ideas = IdeasPage()
         self.projects = ProjectsPage()
         self.learning_paths = LearningPathsPage()
+        self.calculator = CalculatorPage()
+        self.checklist = ChecklistPage()
+        self.more_features = None  # Will be initialized later with page_manager
         # self.editor= None
 
     # @property
