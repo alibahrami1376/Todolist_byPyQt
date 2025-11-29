@@ -79,6 +79,24 @@ class MoreFeaturesPage(QWidget):
                 "description": "ماشین حساب ساده برای محاسبات روزمره",
                 "page": "Calculator"
             },
+            {
+                "name": "مدیریت دوره‌ها",
+                "icon": "task.png",
+                "description": "ایجاد و مدیریت دوره‌های آموزشی",
+                "page": "Courses"
+            },
+            {
+                "name": "مدیریت کتاب‌های درسی",
+                "icon": "task.png",
+                "description": "ایجاد و مدیریت کتاب‌های درسی",
+                "page": "Textbooks"
+            },
+            {
+                "name": "ویرایشگر سند",
+                "icon": "task.png",
+                "description": "ویرایشگر سند با بلوک‌های قابل جابه‌جایی",
+                "page": "DocumentEditor"
+            },
         ]
         
         # ایجاد کارت‌ها

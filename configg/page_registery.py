@@ -29,6 +29,9 @@ from views.pages.habits_monthly_page import HabitsMonthlyPage
 from views.pages.habit_reflection_page import HabitReflectionPage
 from views.pages.habit_motivation_page import HabitMotivationPage
 from views.pages.habit_statistics_page import HabitStatisticsPage
+from views.pages.course_page import CoursePage
+from views.pages.textbook_page import TextbookPage
+from views.pages.documents_list_page import DocumentsListPage
 from typing import Optional
 from models.task_models import TaskModel
 
@@ -61,6 +64,9 @@ class PageRegistry:
         self.habit_reflection_page = HabitReflectionPage()
         self.habit_motivation_page = HabitMotivationPage()
         self.habit_statistics_page = HabitStatisticsPage()
+        self.course_page = CoursePage()
+        self.textbook_page = TextbookPage()
+        self.documents_list_page = DocumentsListPage()
         self.more_features = None  # Will be initialized later with page_manager
         # self.editor= None
 

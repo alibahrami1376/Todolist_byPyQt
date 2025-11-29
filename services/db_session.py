@@ -9,7 +9,7 @@ DATABASE_URL = "sqlite:///data/tasks.db"
 class Base(DeclarativeBase):
     pass
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(bind=engine)
 
 
@@ -42,5 +42,7 @@ def init_db() -> None:
     from models.db.project_step_entity import ProjectStepEntity  # noqa: F401
     from models.db.habit_entity import HabitEntity, HabitLogEntity, HabitStatsEntity  # noqa: F401
     from models.db.app_settings_entity import AppSettingsEntity  # noqa: F401
+    from models.db.course_entity import CourseEntity, TextbookEntity, LearningLoopEntity  # noqa: F401
+    from models.db.document_entity import DocumentEntity, DocumentBlockEntity  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

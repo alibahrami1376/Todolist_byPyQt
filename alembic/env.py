@@ -6,18 +6,24 @@ from sqlalchemy import pool
 from alembic import context
 
 from services.db_session import Base  # یا wherever Base is
-from models.db.task_entity import TaskEntity
-from models.db.user_entity import UserEntity
-from models.db.idea_entity import IdeaEntity
-from models.db.project_entity import ProjectEntity
-from models.db.learning_path_entity import LearningPathEntity
-from models.db.project_step_entity import ProjectStepEntity
-from models.db.category_entity import CategoryEntity
-from models.db.question_entity import QuestionEntity
-from models.db.answer_entity import AnswerEntity
-from models.db.insight_entity import InsightEntity
-from models.db.habit_entity import HabitEntity, HabitLogEntity, HabitStatsEntity  # noqa: F401
-from models.db.app_settings_entity import AppSettingsEntity  # noqa: F401
+# Import all entities to register them with Base.metadata
+try:
+    from models.db.task_entity import TaskEntity  # noqa: F401
+    from models.db.user_entity import UserEntity  # noqa: F401
+    from models.db.idea_entity import IdeaEntity  # noqa: F401
+    from models.db.project_entity import ProjectEntity  # noqa: F401
+    from models.db.learning_path_entity import LearningPathEntity  # noqa: F401
+    from models.db.project_step_entity import ProjectStepEntity  # noqa: F401
+    from models.db.category_entity import CategoryEntity  # noqa: F401
+    from models.db.question_entity import QuestionEntity  # noqa: F401
+    from models.db.answer_entity import AnswerEntity  # noqa: F401
+    from models.db.insight_entity import InsightEntity  # noqa: F401
+    from models.db.habit_entity import HabitEntity, HabitLogEntity, HabitStatsEntity  # noqa: F401
+    from models.db.app_settings_entity import AppSettingsEntity  # noqa: F401
+    from models.db.course_entity import CourseEntity, TextbookEntity, LearningLoopEntity  # noqa: F401
+    from models.db.document_entity import DocumentEntity, DocumentBlockEntity  # noqa: F401
+except Exception:
+    pass  # Ignore import errors during migration
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

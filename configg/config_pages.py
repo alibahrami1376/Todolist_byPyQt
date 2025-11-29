@@ -44,6 +44,10 @@ class ConfigPages:
         self.window.add_page(self.pages.habit_reflection_page, "HabitReflection")  # بازتاب روزانه
         self.window.add_page(self.pages.habit_motivation_page, "HabitMotivation")  # انگیزش روزانه
         self.window.add_page(self.pages.habit_statistics_page, "HabitStatistics")  # آمار و نمودارها
+        self.window.add_page(self.pages.course_page, "Courses")  # مدیریت دوره‌ها
+        self.window.add_page(self.pages.textbook_page, "Textbooks")  # مدیریت کتاب‌های درسی
+        self.pages.documents_list_page.page_manager = self.window
+        self.window.add_page(self.pages.documents_list_page, "DocumentEditor")  # لیست و ویرایشگر سندها
         self.window.add_page(self.pages.more_features, "MoreFeatures")  # صفحه جدید امکانات بیشتر
         self.window.add_page(self.pages.todo, "TodoList")
         self.window.add_page(self.pages.userdash,"usdash")
