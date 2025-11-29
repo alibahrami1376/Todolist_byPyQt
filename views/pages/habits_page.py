@@ -68,11 +68,22 @@ class HabitsPage(QWidget):
         
         # Tab برای انواع عادت‌ها
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.create_habit_list("روزانه"), "روزانه")
-        self.tabs.addTab(self.create_habit_list("هفتگی"), "هفتگی")
-        self.tabs.addTab(self.create_habit_list("ماهانه"), "ماهانه")
-        self.tabs.addTab(self.create_habit_list("سالانه"), "سالانه")
+        # ذخیره لیست ویجت‌ها برای دسترسی مستقیم
+        self.habit_lists = {}
+        for category in ["روزانه", "هفتگی", "ماهانه", "سالانه"]:
+            widget, list_widget = self.create_habit_list(category)
+            self.habit_lists[category] = list_widget
+            self.tabs.addTab(widget, category)
         habits_layout.addWidget(self.tabs)
+        
+        # پیام راهنما برای زمانی که عادتی وجود ندارد
+        self.empty_message = QLabel("هنوز عادتی ایجاد نشده است. برای افزودن عادت جدید، روی دکمه «افزودن عادت» کلیک کنید.")
+        self.empty_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.empty_message.setWordWrap(True)
+        self.empty_message.setStyleSheet("color: gray; padding: 20px;")
+        self.empty_message.hide()  # ابتدا مخفی است
+        habits_layout.addWidget(self.empty_message)
+        
         habits_group.setLayout(habits_layout)
         layout.addWidget(habits_group)
     
@@ -91,20 +102,25 @@ class HabitsPage(QWidget):
         list_widget.setObjectName(f"habit_list_{category}")
         layout.addWidget(list_widget)
         
-        return widget
+        return widget, list_widget  # بازگشت هم widget و هم list_widget
     
     def load_habits(self):
         """بارگذاری عادت‌ها از دیتابیس"""
         try:
+            # بررسی وجود tabs
+            if not hasattr(self, 'tabs') or self.tabs.count() == 0:
+                print("خطا: تب‌ها هنوز ایجاد نشده‌اند")
+                return
+            
             # پاک کردن لیست‌ها اول
-            for i in range(self.tabs.count()):
-                tab_widget = self.tabs.widget(i)
-                list_widget = tab_widget.findChild(QListWidget)
-                if list_widget:
-                    list_widget.clear()
+            if hasattr(self, 'habit_lists'):
+                for category, list_widget in self.habit_lists.items():
+                    if list_widget:
+                        list_widget.clear()
             
             # دریافت عادت‌ها از دیتابیس
             habits = self.service.get_all_habits(active_only=True)
+            print(f"تعداد عادت‌های بارگذاری شده: {len(habits)}")
             
             total_habits = len(habits)
             completed_habits = 0
@@ -118,34 +134,43 @@ class HabitsPage(QWidget):
                     if habit_category not in ["روزانه", "هفتگی", "ماهانه", "سالانه"]:
                         habit_category = "روزانه"
                     
-                    tab_index = ["روزانه", "هفتگی", "ماهانه", "سالانه"].index(habit_category)
-                    tab_widget = self.tabs.widget(tab_index)
-                    list_widget = tab_widget.findChild(QListWidget)
-                    
-                    if list_widget:
-                        item = self.create_habit_item(habit)
-                        list_widget.addItem(item)
-                        widget = self.create_habit_widget(habit)
-                        list_widget.setItemWidget(item, widget)
-                        
-                        # بررسی تکمیل
-                        if self.service.is_habit_completed_on_date(habit_id, self.current_date):
-                            completed_habits += 1
+                    # استفاده از دیکشنری habit_lists برای دسترسی مستقیم
+                    if hasattr(self, 'habit_lists') and habit_category in self.habit_lists:
+                        list_widget = self.habit_lists[habit_category]
+                        if list_widget:
+                            item = self.create_habit_item(habit)
+                            list_widget.addItem(item)
+                            widget = self.create_habit_widget(habit)
+                            list_widget.setItemWidget(item, widget)
+                            
+                            # بررسی تکمیل
+                            if self.service.is_habit_completed_on_date(habit_id, self.current_date):
+                                completed_habits += 1
+                        else:
+                            print(f"خطا: لیست ویجت برای دسته {habit_category} None است")
+                    else:
+                        print(f"خطا: لیست ویجت برای دسته {habit_category} در habit_lists پیدا نشد")
                 except Exception as e:
                     print(f"خطا در افزودن habit: {e}")
+                    import traceback
+                    traceback.print_exc()
                     continue
             
             # به‌روزرسانی progress bar
             if total_habits > 0:
                 progress = int((completed_habits / total_habits) * 100)
                 self.overall_progress.setValue(progress)
+                self.empty_message.hide()  # اگر عادت وجود دارد، پیام را مخفی کن
             else:
                 self.overall_progress.setValue(0)
+                self.empty_message.show()  # اگر عادتی وجود ندارد، پیام را نمایش بده
                 
         except Exception as e:
             print(f"خطا در بارگذاری habits: {e}")
             import traceback
             traceback.print_exc()
+            # نمایش پیام خطا به کاربر
+            QMessageBox.warning(self, "خطا", f"خطا در بارگذاری عادت‌ها: {str(e)}")
     
     def create_habit_item(self, habit: HabitEntity):
         """ایجاد آیتم لیست برای عادت"""

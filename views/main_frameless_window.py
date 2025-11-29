@@ -287,10 +287,12 @@ class MainFramelessWindow(QWidget):
         self.stack.setCurrentWidget(widget_new)
 
     def switch_page(self, name: str):
-        if name.lower() in self.pages:
-            self.stack.setCurrentWidget(self.pages[name.lower()])
+        name_lower = name.lower()
+        if name_lower in self.pages:
+            self.stack.setCurrentWidget(self.pages[name_lower])
         else:
-            raise ValueError(f"Page '{name}' not found.")
+            print(f"Warning: Page '{name}' (as '{name_lower}') not found in pages. Available pages: {list(self.pages.keys())}")
+            raise ValueError(f"Page '{name}' not found. Available pages: {list(self.pages.keys())}")
 
     def toggle_sidebar(self):
         if not hasattr(self, "sidebar"):
