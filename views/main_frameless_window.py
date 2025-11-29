@@ -11,6 +11,7 @@ from utils.app_notifier import AppNotifier
 from core.session_manager import Session
 from views.pages.theme_settings_page import ThemeSettingsPage
 from utils.stylesheet_loader import load_stylesheet
+from utils.app_config import AppConfig
 
 class MainFramelessWindow(QWidget):
     
@@ -143,14 +144,8 @@ class MainFramelessWindow(QWidget):
         self.add_page(self.theme_settings_page, "تنظیمات تم")
 
     def apply_theme_from_config(self):
-        config_path = "configg/theme_config.txt"
-        theme = "روشن"
-        if os.path.exists(config_path):
-            try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    theme = f.read().strip() or "روشن"
-            except Exception:
-                theme = "روشن"
+        # بارگذاری تم از دیتابیس
+        theme = AppConfig.get_theme()
 
         if theme == "دارک":
             self.is_dark_theme = True

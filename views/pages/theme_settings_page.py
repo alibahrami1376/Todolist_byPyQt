@@ -3,7 +3,7 @@
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt6.QtCore import Qt
-import os
+from utils.app_config import AppConfig
 
 class ThemeSettingsPage(QWidget):
     def __init__(self, main_window=None):
@@ -33,16 +33,13 @@ class ThemeSettingsPage(QWidget):
 
     def save_theme(self):
         theme = self.theme_selector.currentText()
-        with open("configg/theme_config.txt", "w", encoding="utf-8") as f:
-            f.write(theme)
+        # ذخیره در دیتابیس
+        AppConfig.save_theme(theme)
         self.apply_theme(theme)
 
     def load_theme(self):
-        theme = "روشن"
-        config_path = "configg/theme_config.txt"
-        if os.path.exists(config_path):
-            with open(config_path, "r", encoding="utf-8") as f:
-                theme = f.read().strip()
+        # بارگذاری از دیتابیس
+        theme = AppConfig.get_theme()
         self.theme_selector.setCurrentText(theme)
         self.apply_theme(theme)
 

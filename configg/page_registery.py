@@ -23,6 +23,10 @@ from views.pages.learning_paths_page import LearningPathsPage
 from views.pages.more_features_page import MoreFeaturesPage
 from views.pages.calculator_page import CalculatorPage
 from views.pages.checklist_page import ChecklistPage
+from views.pages.habits_page import HabitsPage
+from views.pages.habit_reflection_page import HabitReflectionPage
+from views.pages.habit_motivation_page import HabitMotivationPage
+from views.pages.habit_statistics_page import HabitStatisticsPage
 from typing import Optional
 from models.task_models import TaskModel
 
@@ -48,7 +52,11 @@ class PageRegistry:
         self.projects = ProjectsPage()
         self.learning_paths = LearningPathsPage()
         self.calculator = CalculatorPage()
-        self.checklist = ChecklistPage()
+        self.checklist = None  # Will be initialized later with page_manager
+        self.habits_page = HabitsPage()
+        self.habit_reflection_page = HabitReflectionPage()
+        self.habit_motivation_page = HabitMotivationPage()
+        self.habit_statistics_page = HabitStatisticsPage()
         self.more_features = None  # Will be initialized later with page_manager
         # self.editor= None
 

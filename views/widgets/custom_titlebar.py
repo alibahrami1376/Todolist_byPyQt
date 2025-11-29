@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt, QPoint, QSize
 import os
 import math
 from utils.stylesheet_loader import load_stylesheet
+from utils.app_config import AppConfig
 from PyQt6.QtGui import QIcon, QPainter, QPen, QBrush, QColor, QPixmap
 
 class CustomTitleBar(QFrame):
@@ -78,23 +79,12 @@ class CustomTitleBar(QFrame):
     def toggle_theme(self):
         if not self.parent:
             return
-        # Read current
-        config_path = "configg/theme_config.txt"
-        current = "روشن"
-        if os.path.exists(config_path):
-            try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    current = f.read().strip() or "روشن"
-            except Exception:
-                current = "روشن"
-
+        # Read current from database
+        current = AppConfig.get_theme()
         new_theme = "دارک" if current != "دارک" else "روشن"
-        try:
-            os.makedirs("configg", exist_ok=True)
-            with open(config_path, "w", encoding="utf-8") as f:
-                f.write(new_theme)
-        except Exception:
-            pass
+        
+        # Save to database
+        AppConfig.save_theme(new_theme)
 
         if new_theme == "دارک":
             self.parent.is_dark_theme = True

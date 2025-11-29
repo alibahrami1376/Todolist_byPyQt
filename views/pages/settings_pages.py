@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox, QPushButton, QComboBox, QHBoxLayout, QFrame
 from PyQt6.QtCore import Qt
+from utils.app_config import AppConfig
 
 class SettingsPage(QWidget):
     def __init__(self):
@@ -12,7 +13,6 @@ class SettingsPage(QWidget):
 
         # Theme toggle
         self.theme_checkbox = QCheckBox("Enable dark theme")
-        self.theme_checkbox.setChecked(True)
         layout.addWidget(self.build_group("Appearance", [self.theme_checkbox]))
 
         # Language selector
@@ -31,6 +31,7 @@ class SettingsPage(QWidget):
 
         # Save settings button
         self.save_button = QPushButton("Save Settings")
+        self.save_button.clicked.connect(self.save_settings)
         self.save_button.setStyleSheet("""
             QPushButton {
                 background-color: #0078d7;
@@ -46,6 +47,41 @@ class SettingsPage(QWidget):
         """)
         layout.addWidget(self.save_button)
         layout.addStretch()
+        
+        # بارگذاری تنظیمات از دیتابیس
+        self.load_settings()
+
+    def load_settings(self):
+        """بارگذاری تنظیمات از دیتابیس"""
+        config = AppConfig.get_config()
+        
+        # بارگذاری تم
+        theme = config.get('theme', 'روشن')
+        self.theme_checkbox.setChecked(theme == 'دارک')
+        
+        # بارگذاری زبان
+        language = config.get('language', 'فارسی')
+        index = self.language_combo.findText(language)
+        if index >= 0:
+            self.language_combo.setCurrentIndex(index)
+        
+        # بارگذاری اعلان‌ها
+        notifications = config.get('notifications', {})
+        self.notify_checkbox.setChecked(notifications.get('enabled', True))
+
+    def save_settings(self):
+        """ذخیره تنظیمات در دیتابیس"""
+        # ذخیره تم
+        theme = 'دارک' if self.theme_checkbox.isChecked() else 'روشن'
+        AppConfig.save_theme(theme)
+        
+        # ذخیره زبان
+        language = self.language_combo.currentText()
+        AppConfig.save_language(language)
+        
+        # ذخیره اعلان‌ها
+        notifications_enabled = self.notify_checkbox.isChecked()
+        AppConfig.save_notification_settings(notifications_enabled, notifications_enabled)
 
     def build_group(self, title: str, widgets: list[QWidget]) -> QFrame:
         group_box = QFrame()

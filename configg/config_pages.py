@@ -22,7 +22,9 @@ class ConfigPages:
     def add_page(self):
         # ایجاد صفحه MoreFeatures با page_manager
         from views.pages.more_features_page import MoreFeaturesPage
+        from views.pages.checklist_page import ChecklistPage
         self.pages.more_features = MoreFeaturesPage(page_manager=self.window)
+        self.pages.checklist = ChecklistPage(page_manager=self.window)
              
         self.window.add_page(self.pages.dash,"Dashboard")
         self.window.add_page(self.pages.calendar,"Calendar")
@@ -32,7 +34,12 @@ class ConfigPages:
         self.window.add_page(self.pages.journal, "Journal")
         self.window.add_page(self.pages.timer, "Timer")  # Timer هنوز برای دسترسی مستقیم موجود است
         self.window.add_page(self.pages.calculator, "Calculator")  # ماشین حساب
-        self.window.add_page(self.pages.checklist, "Checklist")  # چک‌لیست عادت‌ها
+        self.window.add_page(self.pages.checklist, "Checklist")  # چک‌لیست عادت‌ها - صفحه لانچر
+        # صفحات جدید habit
+        self.window.add_page(self.pages.habits_page, "Habits")  # مدیریت عادت‌ها
+        self.window.add_page(self.pages.habit_reflection_page, "HabitReflection")  # بازتاب روزانه
+        self.window.add_page(self.pages.habit_motivation_page, "HabitMotivation")  # انگیزش روزانه
+        self.window.add_page(self.pages.habit_statistics_page, "HabitStatistics")  # آمار و نمودارها
         self.window.add_page(self.pages.more_features, "MoreFeatures")  # صفحه جدید امکانات بیشتر
         self.window.add_page(self.pages.todo, "TodoList")
         self.window.add_page(self.pages.userdash,"usdash")

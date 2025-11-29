@@ -46,7 +46,41 @@ class HabitService:
                 stmt = stmt.where(HabitEntity.is_active == True)
             stmt = stmt.order_by(HabitEntity.created_at.desc())
             result = db.execute(stmt)
-            return list(result.scalars().all())
+            habits = list(result.scalars().all())
+            
+            # اطمینان از load شدن تمام attribute ها قبل از بسته شدن session
+            # و تبدیل به detached state برای استفاده خارج از session
+            detached_habits = []
+            for habit in habits:
+                try:
+                    # دسترسی به تمام attribute ها برای اطمینان از eager load
+                    # و کپی کردن مقادیر
+                    habit_data = {
+                        'id': habit.id,
+                        'title': habit.title,
+                        'category': habit.category,
+                        'goal_type': habit.goal_type,
+                        'daily_goal': habit.daily_goal,
+                        'start_date': habit.start_date,
+                        'is_active': habit.is_active,
+                        'created_at': habit.created_at,
+                        'description': habit.description
+                    }
+                    
+                    # ایجاد یک object ساده برای استفاده خارج از session
+                    # یا expunge کردن entity
+                    db.expunge(habit)
+                    detached_habits.append(habit)
+                except Exception as e:
+                    print(f"خطا در پردازش habit: {e}")
+                    # اگر خطا داد، حداقل entity را return می‌کنیم
+                    try:
+                        db.expunge(habit)
+                        detached_habits.append(habit)
+                    except:
+                        pass
+            
+            return detached_habits
 
     def get_habit_by_id(self, habit_id: str) -> Optional[HabitEntity]:
         """دریافت عادت بر اساس ID با SQLAlchemy"""
@@ -65,35 +99,33 @@ class HabitService:
         description: Optional[str] = None,
         is_active: Optional[bool] = None
     ) -> bool:
-        """به‌روزرسانی عادت با SQLAlchemy update statement"""
+        """به‌روزرسانی عادت با SQLAlchemy"""
         with get_session() as db:
-            # ساخت دیکشنری برای فیلدهای به‌روزرسانی
-            update_data = {}
-            if title is not None:
-                update_data['title'] = title
-            if category is not None:
-                update_data['category'] = category
-            if goal_type is not None:
-                update_data['goal_type'] = goal_type
-            if daily_goal is not None:
-                update_data['daily_goal'] = daily_goal
-            if description is not None:
-                update_data['description'] = description
-            if is_active is not None:
-                update_data['is_active'] = is_active
+            # دریافت entity از دیتابیس
+            habit = db.execute(
+                select(HabitEntity).where(HabitEntity.id == habit_id)
+            ).scalar_one_or_none()
             
-            if not update_data:
+            if not habit:
                 return False
             
-            # استفاده از update statement برای بهینه‌سازی
-            stmt = (
-                update(HabitEntity)
-                .where(HabitEntity.id == habit_id)
-                .values(**update_data)
-            )
-            result = db.execute(stmt)
+            # به‌روزرسانی فیلدها
+            if title is not None:
+                habit.title = title
+            if category is not None:
+                habit.category = category
+            if goal_type is not None:
+                habit.goal_type = goal_type
+            if daily_goal is not None:
+                habit.daily_goal = daily_goal
+            if description is not None:
+                habit.description = description
+            if is_active is not None:
+                habit.is_active = is_active
+            
             db.commit()
-            return result.rowcount > 0
+            db.refresh(habit)  # Refresh entity برای اطمینان از به‌روزرسانی
+            return True
 
     def delete_habit(self, habit_id: str) -> bool:
         """حذف عادت با SQLAlchemy delete statement"""
