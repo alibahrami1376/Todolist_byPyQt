@@ -23,8 +23,10 @@ class ConfigPages:
         # ایجاد صفحه MoreFeatures با page_manager
         from views.pages.more_features_page import MoreFeaturesPage
         from views.pages.checklist_page import ChecklistPage
+        from views.pages.habits_page import HabitsPage
         self.pages.more_features = MoreFeaturesPage(page_manager=self.window)
         self.pages.checklist = ChecklistPage(page_manager=self.window)
+        self.pages.habits_page = HabitsPage(page_manager=self.window)
              
         self.window.add_page(self.pages.dash,"Dashboard")
         self.window.add_page(self.pages.calendar,"Calendar")
@@ -36,7 +38,9 @@ class ConfigPages:
         self.window.add_page(self.pages.calculator, "Calculator")  # ماشین حساب
         self.window.add_page(self.pages.checklist, "Checklist")  # چک‌لیست عادت‌ها - صفحه لانچر
         # صفحات جدید habit
-        self.window.add_page(self.pages.habits_page, "Habits")  # مدیریت عادت‌ها
+        self.window.add_page(self.pages.habits_page, "Habits")  # مدیریت عادت‌های روزانه
+        self.window.add_page(self.pages.habits_weekly_page, "HabitsWeekly")  # عادت‌های هفتگی
+        self.window.add_page(self.pages.habits_monthly_page, "HabitsMonthly")  # عادت‌های ماهانه
         self.window.add_page(self.pages.habit_reflection_page, "HabitReflection")  # بازتاب روزانه
         self.window.add_page(self.pages.habit_motivation_page, "HabitMotivation")  # انگیزش روزانه
         self.window.add_page(self.pages.habit_statistics_page, "HabitStatistics")  # آمار و نمودارها

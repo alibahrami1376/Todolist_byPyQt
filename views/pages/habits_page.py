@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QListWidget, 
-    QListWidgetItem, QCheckBox, QMessageBox, QTabWidget, QProgressBar, 
+    QListWidgetItem, QCheckBox, QMessageBox, QProgressBar, 
     QDateEdit, QGroupBox
 )
 from PyQt6.QtCore import Qt, QDate, QSize
@@ -12,12 +12,13 @@ from views.pages.checklist_page import HabitDialog
 
 
 class HabitsPage(QWidget):
-    """صفحه مدیریت عادت‌ها"""
+    """صفحه مدیریت عادت‌های روزانه"""
     
-    def __init__(self):
+    def __init__(self, page_manager=None):
         super().__init__()
         self.service = HabitService()
         self.current_date = date.today()
+        self.page_manager = page_manager
         self.init_ui()
         self.load_habits()
         self.apply_theme()
@@ -33,123 +34,143 @@ class HabitsPage(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
         
-        # هدر
-        header_layout = QHBoxLayout()
-        title = QLabel("✅ مدیریت عادت‌ها")
-        title.setFont(QFont("Segoe UI", 24, QFont.Weight.Bold))
-        header_layout.addWidget(title)
-        header_layout.addStretch()
+        # هدر با آیکون و تاریخ (مثل تصویر)
+        header_widget = QWidget()
+        header_layout = QVBoxLayout(header_widget)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(5)
+        
+        # ردیف اول: آیکون و "روز"
+        top_row = QHBoxLayout()
+        top_row.setContentsMargins(0, 0, 0, 0)
+        
+        # آیکون (می‌توانید آیکون واقعی اضافه کنید)
+        icon_label = QLabel("☁️☀️")
+        icon_label.setFont(QFont("Segoe UI", 24))
+        top_row.addWidget(icon_label)
+        
+        title = QLabel("روز")
+        title.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
+        top_row.addWidget(title)
+        top_row.addStretch()
+        
+        # دکمه‌های هفتگی و ماهانه
+        btn_weekly = QPushButton("📅 هفتگی")
+        btn_weekly.setFont(QFont("Segoe UI", 12))
+        btn_weekly.clicked.connect(self.open_weekly)
+        top_row.addWidget(btn_weekly)
+        
+        btn_monthly = QPushButton("📅 ماهانه")
+        btn_monthly.setFont(QFont("Segoe UI", 12))
+        btn_monthly.clicked.connect(self.open_monthly)
+        top_row.addWidget(btn_monthly)
+        
+        header_layout.addLayout(top_row)
+        
+        # ردیف دوم: تاریخ
+        date_row = QHBoxLayout()
+        date_row.setContentsMargins(0, 0, 0, 0)
+        
+        self.date_label = QLabel()
+        self.update_date_label()
+        self.date_label.setFont(QFont("Segoe UI", 12))
+        date_row.addWidget(self.date_label)
+        date_row.addStretch()
         
         # انتخاب تاریخ
-        date_label = QLabel("تاریخ:")
-        header_layout.addWidget(date_label)
         self.date_picker = QDateEdit()
         self.date_picker.setDate(QDate.currentDate())
         self.date_picker.setCalendarPopup(True)
         self.date_picker.dateChanged.connect(self.on_date_changed)
-        header_layout.addWidget(self.date_picker)
+        self.date_picker.setFixedWidth(150)
+        date_row.addWidget(self.date_picker)
         
         # دکمه افزودن
         add_btn = QPushButton("➕ افزودن عادت")
         add_btn.clicked.connect(self.add_habit)
-        header_layout.addWidget(add_btn)
-        layout.addLayout(header_layout)
+        date_row.addWidget(add_btn)
         
-        # بخش عادت‌ها
-        habits_group = QGroupBox("✅ عادت‌های روزانه")
-        habits_layout = QVBoxLayout()
+        header_layout.addLayout(date_row)
+        layout.addWidget(header_widget)
         
-        # Progress bar کلی
-        self.overall_progress = QProgressBar()
-        self.overall_progress.setMinimum(0)
-        self.overall_progress.setMaximum(100)
-        self.overall_progress.setFormat("%p% تکمیل شده")
-        habits_layout.addWidget(self.overall_progress)
+        # لیست عادت‌های روزانه (ساده مثل تصویر)
+        self.habit_list = QListWidget()
+        self.habit_list.setSpacing(5)
+        layout.addWidget(self.habit_list, 1)
         
-        # Tab برای انواع عادت‌ها
-        self.tabs = QTabWidget()
-        # ذخیره لیست ویجت‌ها برای دسترسی مستقیم
-        self.habit_lists = {}
-        for category in ["روزانه", "هفتگی", "ماهانه", "سالانه"]:
-            widget, list_widget = self.create_habit_list(category)
-            self.habit_lists[category] = list_widget
-            self.tabs.addTab(widget, category)
-        habits_layout.addWidget(self.tabs)
+        # Progress bar در پایین (مثل تصویر)
+        progress_layout = QHBoxLayout()
+        self.progress_label = QLabel("0%")
+        self.progress_label.setFont(QFont("Segoe UI", 12))
+        progress_layout.addWidget(self.progress_label)
         
-        # پیام راهنما برای زمانی که عادتی وجود ندارد
-        self.empty_message = QLabel("هنوز عادتی ایجاد نشده است. برای افزودن عادت جدید، روی دکمه «افزودن عادت» کلیک کنید.")
-        self.empty_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.empty_message.setWordWrap(True)
-        self.empty_message.setStyleSheet("color: gray; padding: 20px;")
-        self.empty_message.hide()  # ابتدا مخفی است
-        habits_layout.addWidget(self.empty_message)
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMinimum(0)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(False)  # متن را در progress bar نمایش نده
+        progress_layout.addWidget(self.progress_bar, 1)
         
-        habits_group.setLayout(habits_layout)
-        layout.addWidget(habits_group)
+        layout.addLayout(progress_layout)
+    
+    def update_date_label(self):
+        """به‌روزرسانی برچسب تاریخ"""
+        from datetime import datetime
+        date_str = self.current_date.strftime("%B %d, %Y")
+        # تبدیل به فارسی (می‌توانید کتابخانه تاریخ فارسی اضافه کنید)
+        self.date_label.setText(date_str)
+    
+    def open_weekly(self):
+        """باز کردن صفحه عادت‌های هفتگی"""
+        if self.page_manager:
+            try:
+                self.page_manager.switch_page("habitsweekly")
+            except Exception as e:
+                print(f"خطا در باز کردن صفحه هفتگی: {e}")
+    
+    def open_monthly(self):
+        """باز کردن صفحه عادت‌های ماهانه"""
+        if self.page_manager:
+            try:
+                self.page_manager.switch_page("habitsmonthly")
+            except Exception as e:
+                print(f"خطا در باز کردن صفحه ماهانه: {e}")
     
     def on_date_changed(self, qdate):
         """وقتی تاریخ تغییر می‌کند"""
         self.current_date = qdate.toPyDate()
+        self.update_date_label()
         self.load_habits()
     
-    def create_habit_list(self, category: str):
-        """ایجاد لیست عادت‌ها برای یک دسته خاص"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        
-        list_widget = QListWidget()
-        list_widget.setObjectName(f"habit_list_{category}")
-        layout.addWidget(list_widget)
-        
-        return widget, list_widget  # بازگشت هم widget و هم list_widget
-    
     def load_habits(self):
-        """بارگذاری عادت‌ها از دیتابیس"""
+        """بارگذاری عادت‌های روزانه از دیتابیس"""
         try:
-            # بررسی وجود tabs
-            if not hasattr(self, 'tabs') or self.tabs.count() == 0:
-                print("خطا: تب‌ها هنوز ایجاد نشده‌اند")
+            if not hasattr(self, 'habit_list'):
                 return
             
-            # پاک کردن لیست‌ها اول
-            if hasattr(self, 'habit_lists'):
-                for category, list_widget in self.habit_lists.items():
-                    if list_widget:
-                        list_widget.clear()
+            self.habit_list.clear()
             
-            # دریافت عادت‌ها از دیتابیس
-            habits = self.service.get_all_habits(active_only=True)
-            print(f"تعداد عادت‌های بارگذاری شده: {len(habits)}")
+            # دریافت فقط عادت‌های روزانه
+            habits = self.service.get_habits_by_category("روزانه")
+            print(f"تعداد عادت‌های روزانه بارگذاری شده: {len(habits)}")
             
             total_habits = len(habits)
             completed_habits = 0
             
-            # افزودن عادت‌ها به لیست مربوطه
+            # افزودن عادت‌ها به لیست
             for habit in habits:
                 try:
                     habit_id = habit.id
-                    habit_category = habit.category or "روزانه"
                     
-                    if habit_category not in ["روزانه", "هفتگی", "ماهانه", "سالانه"]:
-                        habit_category = "روزانه"
+                    item = QListWidgetItem()
+                    item.setSizeHint(QSize(0, 60))
+                    widget = self.create_habit_widget(habit)
+                    self.habit_list.addItem(item)
+                    self.habit_list.setItemWidget(item, widget)
                     
-                    # استفاده از دیکشنری habit_lists برای دسترسی مستقیم
-                    if hasattr(self, 'habit_lists') and habit_category in self.habit_lists:
-                        list_widget = self.habit_lists[habit_category]
-                        if list_widget:
-                            item = self.create_habit_item(habit)
-                            list_widget.addItem(item)
-                            widget = self.create_habit_widget(habit)
-                            list_widget.setItemWidget(item, widget)
-                            
-                            # بررسی تکمیل
-                            if self.service.is_habit_completed_on_date(habit_id, self.current_date):
-                                completed_habits += 1
-                        else:
-                            print(f"خطا: لیست ویجت برای دسته {habit_category} None است")
-                    else:
-                        print(f"خطا: لیست ویجت برای دسته {habit_category} در habit_lists پیدا نشد")
+                    # بررسی تکمیل
+                    if self.service.is_habit_completed_on_date(habit_id, self.current_date):
+                        completed_habits += 1
                 except Exception as e:
                     print(f"خطا در افزودن habit: {e}")
                     import traceback
@@ -159,92 +180,50 @@ class HabitsPage(QWidget):
             # به‌روزرسانی progress bar
             if total_habits > 0:
                 progress = int((completed_habits / total_habits) * 100)
-                self.overall_progress.setValue(progress)
-                self.empty_message.hide()  # اگر عادت وجود دارد، پیام را مخفی کن
+                self.progress_bar.setValue(progress)
+                self.progress_label.setText(f"{progress}%")
             else:
-                self.overall_progress.setValue(0)
-                self.empty_message.show()  # اگر عادتی وجود ندارد، پیام را نمایش بده
+                self.progress_bar.setValue(0)
+                self.progress_label.setText("0%")
                 
         except Exception as e:
             print(f"خطا در بارگذاری habits: {e}")
             import traceback
             traceback.print_exc()
-            # نمایش پیام خطا به کاربر
             QMessageBox.warning(self, "خطا", f"خطا در بارگذاری عادت‌ها: {str(e)}")
     
-    def create_habit_item(self, habit: HabitEntity):
-        """ایجاد آیتم لیست برای عادت"""
-        try:
-            habit_id = habit.id
-            item = QListWidgetItem()
-            item.setData(Qt.ItemDataRole.UserRole, habit_id)
-            item.setSizeHint(QSize(0, 80))
-            return item
-        except Exception as e:
-            print(f"خطا در create_habit_item: {e}")
-            item = QListWidgetItem()
-            item.setSizeHint(QSize(0, 80))
-            return item
-    
     def create_habit_widget(self, habit: HabitEntity):
-        """ایجاد ویجت برای نمایش عادت با progress bar"""
+        """ایجاد ویجت برای نمایش عادت (ساده مثل تصویر)"""
         try:
             habit_id = habit.id
             habit_title = habit.title
-            habit_goal_type = habit.goal_type or "boolean"
-            habit_daily_goal = habit.daily_goal or 1
-            habit_description = habit.description or ""
             
             widget = QWidget()
-            layout = QVBoxLayout(widget)
-            layout.setContentsMargins(10, 5, 10, 5)
-            layout.setSpacing(5)
+            layout = QHBoxLayout(widget)
+            layout.setContentsMargins(15, 10, 15, 10)
+            layout.setSpacing(10)
             
-            # ردیف اول: چک‌باکس و عنوان
-            top_layout = QHBoxLayout()
-            
+            # چک‌باکس
             checkbox = QCheckBox(habit_title)
-            checkbox.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
+            checkbox.setFont(QFont("Segoe UI", 12))
             is_completed = self.service.is_habit_completed_on_date(habit_id, self.current_date)
             checkbox.setChecked(is_completed)
             checkbox.stateChanged.connect(
                 lambda state, h_id=habit_id: self.toggle_habit(h_id, state == Qt.CheckState.Checked)
             )
-            top_layout.addWidget(checkbox)
-            top_layout.addStretch()
+            layout.addWidget(checkbox)
+            layout.addStretch()
             
             # دکمه‌های ویرایش و حذف
             edit_btn = QPushButton("✏️")
-            edit_btn.setFixedSize(25, 25)
+            edit_btn.setFixedSize(30, 30)
             edit_btn.clicked.connect(lambda: self.edit_habit(habit))
-            top_layout.addWidget(edit_btn)
+            layout.addWidget(edit_btn)
             
             delete_btn = QPushButton("🗑️")
-            delete_btn.setFixedSize(25, 25)
+            delete_btn.setFixedSize(30, 30)
             delete_btn.clicked.connect(lambda: self.delete_habit(habit))
-            top_layout.addWidget(delete_btn)
-            
-            layout.addLayout(top_layout)
-            
-            # Progress bar برای عادت‌های count/time
-            if habit_goal_type in ["count", "time"]:
-                # دریافت مقدار فعلی از لاگ‌ها
-                logs = self.service.get_habit_logs(habit_id, self.current_date, self.current_date)
-                current_value = logs[0].value if logs else 0
-                
-                progress_bar = QProgressBar()
-                progress_bar.setMinimum(0)
-                progress_bar.setMaximum(habit_daily_goal)
-                progress_bar.setValue(current_value)
-                progress_bar.setFormat(f"{current_value}/{habit_daily_goal}")
-                layout.addWidget(progress_bar)
-            
-            # توضیحات
-            if habit_description:
-                desc_label = QLabel(habit_description)
-                desc_label.setStyleSheet("color: gray; font-size: 9px;")
-                desc_label.setWordWrap(True)
-                layout.addWidget(desc_label)
+            layout.addWidget(delete_btn)
             
             widget.habit_id = habit_id
             widget.habit_entity = habit
@@ -282,7 +261,7 @@ class HabitsPage(QWidget):
             try:
                 self.service.create_habit(
                     title=habit_data["title"],
-                    category=habit_data["category"],
+                    category="روزانه",  # همیشه روزانه برای این صفحه
                     goal_type=habit_data["goal_type"],
                     daily_goal=habit_data["daily_goal"],
                     description=habit_data["description"]
@@ -310,7 +289,7 @@ class HabitsPage(QWidget):
                 success = self.service.update_habit(
                     fresh_habit.id,
                     title=habit_data["title"],
-                    category=habit_data["category"],
+                    category="روزانه",  # همیشه روزانه برای این صفحه
                     goal_type=habit_data["goal_type"],
                     daily_goal=habit_data["daily_goal"],
                     description=habit_data["description"]
@@ -367,23 +346,11 @@ class HabitsPage(QWidget):
                 QListWidget::item {
                     background-color: #2d2d30;
                     border-bottom: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    margin: 2px;
                 }
                 QListWidget::item:hover {
                     background-color: #3e3e42;
-                }
-                QTabWidget::pane {
-                    border: 1px solid #3e3e42;
-                    background-color: #1e1e1e;
-                }
-                QTabBar::tab {
-                    background-color: #2d2d30;
-                    color: white;
-                    padding: 8px 16px;
-                    border-top-left-radius: 4px;
-                    border-top-right-radius: 4px;
-                }
-                QTabBar::tab:selected {
-                    background-color: #0078d7;
                 }
                 QCheckBox {
                     color: white;
@@ -437,24 +404,11 @@ class HabitsPage(QWidget):
                 QListWidget::item {
                     background-color: #ffffff;
                     border-bottom: 1px solid #ddd;
+                    border-radius: 4px;
+                    margin: 2px;
                 }
                 QListWidget::item:hover {
                     background-color: #e9e9e9;
-                }
-                QTabWidget::pane {
-                    border: 1px solid #ddd;
-                    background-color: #ffffff;
-                }
-                QTabBar::tab {
-                    background-color: #f1f1f1;
-                    color: #1e1e1e;
-                    padding: 8px 16px;
-                    border-top-left-radius: 4px;
-                    border-top-right-radius: 4px;
-                }
-                QTabBar::tab:selected {
-                    background-color: #0078d7;
-                    color: white;
                 }
                 QCheckBox {
                     color: #1e1e1e;

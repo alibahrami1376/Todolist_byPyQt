@@ -24,6 +24,8 @@ from views.pages.more_features_page import MoreFeaturesPage
 from views.pages.calculator_page import CalculatorPage
 from views.pages.checklist_page import ChecklistPage
 from views.pages.habits_page import HabitsPage
+from views.pages.habits_weekly_page import HabitsWeeklyPage
+from views.pages.habits_monthly_page import HabitsMonthlyPage
 from views.pages.habit_reflection_page import HabitReflectionPage
 from views.pages.habit_motivation_page import HabitMotivationPage
 from views.pages.habit_statistics_page import HabitStatisticsPage
@@ -53,7 +55,9 @@ class PageRegistry:
         self.learning_paths = LearningPathsPage()
         self.calculator = CalculatorPage()
         self.checklist = None  # Will be initialized later with page_manager
-        self.habits_page = HabitsPage()
+        self.habits_page = None  # Will be initialized later with page_manager
+        self.habits_weekly_page = HabitsWeeklyPage()
+        self.habits_monthly_page = HabitsMonthlyPage()
         self.habit_reflection_page = HabitReflectionPage()
         self.habit_motivation_page = HabitMotivationPage()
         self.habit_statistics_page = HabitStatisticsPage()
